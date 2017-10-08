@@ -21,6 +21,9 @@ def getGitLogInfo(localRepo, reqName, callback):
 
 '''
 A public function exposed to other scripts
+Note:
+  Both public and private version of this function doesn't make sense to be in this Git utility class.
+  The reason it's here is that JiraApache also uses this function.
 '''
 def getCommitsDatesForThisReq(localRepo, reqName):
   return getGitLogInfo(localRepo, reqName, _getCommitsDatesForThisReq)
