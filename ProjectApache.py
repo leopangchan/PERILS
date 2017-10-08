@@ -58,6 +58,22 @@ class ProjectApache:
   def __initCSVRows(self):
     return self.jiraApache.toCSVDict()
 
-  # It output all metrics to a csv file.
+  '''
+  It output all metrics to a csv file.
+  for each issue in issues of jiraApache
+    row = columnsName
+    perilsResults = issue.getJIRAItemsHistory()
+    align all the columns in row in perilsResults
+    row[numOpenRequirements] = jiraApache.getNumOpenFeatures
+    row[numInProgressRequirements] = jiraApache.getNumInProgressFeatures
+    row[numDevelopers] = self.gitApache.getNumUniqueDevelopers(issue.reqNAme)
+    pass the row dict to al CSV project
+    call outputCSVFile()
+    
+    
+  '''
   def toCSVFile(self):
+    # fd = open('document.csv', 'a')
+    # fd.write(myCsvRow)
+    # fd.close()
     return self.csv.outputCSVFile()
