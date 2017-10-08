@@ -5,27 +5,29 @@ from Jira import JiraQuery
 
 class JiraApache:
   jiraAPI = None
-  jiraURL = None
   jiraProjectName = None
   issuesApache = []
 
-  def __init__(self, jiraURL, jiraProjectName):
-    self.jiraURL = jiraURL
+  '''
+  jiraURL - to create an object of jiraAPI
+  jiraProjectQuery - to select a project when executing queries
+  '''
+  def __init__(self, jiraProjectName):
     self.jiraAPI = JIRA({
-      'server': self.jiraURL
+      'server': 'https://issues.apache.org/jira'
     })
     self.jiraProjectName = jiraProjectName
-    self.__setAllIssuesApache(self.jiraAPI)
+    self.__setAllIssuesApache()
 
   '''
-  Goal: To resolve this question (No related ticket in JIRA):
+  To resolve this question (No related ticket in JIRA):
     The number of requirenments that are in progress.
   '''
   def getNumInProgressFeatures(self):
     return JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI, self.jiraProjectName)
 
   '''		
-  Goal: To resolve this question (No related ticket in JIRA):
+  To resolve this question (No related ticket in JIRA):
     how many requirements are already defined in Jira but their implementation has not started yet.		
   '''
   def getNumOpenFeatures(self):
@@ -37,6 +39,6 @@ class JiraApache:
   def getAllIssuesApache(self):
     return self.issuesApache
 
-  def __setAllIssuesApache(self, jiraAPI):
-    for req in JiraQuery.getAllIssues(self.jiraAPI):
-      self.issuesApache.append(IssueApache(req.key, jiraAPI))
+  def __setAllIssuesApache(self):
+    for req in JiraQuery.getAllIssues(self.jiraAPI, self.jiraProjectName):
+      self.issuesApache.append(IssueApache(req.key, self.jiraAPI, self.jiraProjectName))
