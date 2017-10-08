@@ -1,21 +1,23 @@
 from Git.GitApache import GitApache
 from Jira.JiraApache import JiraApache
 from CSV import CSV
+import re
 import Utility
 
 class ProjectApache:
-  localRepo = None
+  localRepos = None
   jiraApache = None
-  gitApache = None
+  gitsApache = []
   csv = None
   columns = None
 
-  def __init__(self, jiraURL, gitURL, csvURL, localRepo):
-    self.localRepo = localRepo
+  def __init__(self, jiraURL, gitURLs, csvURL, localRepos):
+    self.localRepos = localRepos
     self.columns = self.__initCSVHeaders()
-    self.jiraApache = JiraApache(jiraURL)
-    self.gitApache = GitApache(gitURL)
-    self.csv = CSV(csvURL, self.__initCSVHeaders(), self. __initCSVRows())
+    self.jiraApache = JiraApache(re.findall(".*\/(.*)", jiraURL)[0])
+    for index, gitUrl in enumerate(gitURLs):
+      self.gitsApache.append(GitApache(gitUrl, localRepos[index], re.findall(".*\/(.*).git", gitUrl)[0]))
+    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVrows())
 
   # it initializes a list of strings of the headers
   def __initCSVHeaders(self):
@@ -54,26 +56,50 @@ class ProjectApache:
     columnsNames += Utility.getAllPossibleTransitions()
     return columnsNames
 
-  # It initializes a dictionary that have data for each column defined in __initCSVHeaders.
-  def __initCSVRows(self):
-    return self.jiraApache.toCSVDict()
+  '''
+    for each issue in issues of jiraApache
+      row = columnsName
+      perilsResults = issue.getJIRAItemsHistory()
+      align all the columns in row in perilsResults
+      row[numOpenRequirements] = jiraApache.getNumOpenFeatures
+      row[numInProgressRequirements] = jiraApache.getNumInProgressFeatures
+      row[numDevelopers] = self.gitsApache.getNumUniqueDevelopers(issue.reqNAme)
+    return the row dict to al CSV project
+  '''
+  def __initCSVrows(self):
+    for issue in self.jiraApache.getAllIssuesApache():
+      row = dict(self.__initCSVHeaders())
+      perilsRestuls = issue.getJIRAItemHistory(self.localRepos)
+      row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
+      row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
+      totalNumDevelopersInAllRepos = 0
+      for gitApache in self.gitsApache:
+        totalNumDevelopersInAllRepos += gitApache.getNumUniqueDevelopers(issue.reqName)
+      row["numDevelopers"] = totalNumDevelopersInAllRepos
+      row["numDevelopedRequirementsBeforeThisInProgress"] = perilsRestuls["numDevelopedRequirementsBeforeThisInProgress"]
+      row["numOpenWhileThisOpen"] = perilsRestuls['numOpenWhileThisOpen']
+      row["numInProgressWhileThisOpen"] = perilsRestuls['numInProgressWhileThisOpen']
+      row["numResolvedWhileThisOpen"] = perilsRestuls['numResolvedWhileThisOpen']
+      row["numReopenedWhileThisOpen"] = perilsRestuls['numReopenedWhileThisOpen']
+      row["numClosedWhileThisOpen"] = perilsRestuls['numClosedWhileThisOpen']
+      row["numOpenWhenInProgress"] = perilsRestuls['numOpenWhenInProgress']
+      row["numInProgressWhenInProgress"] = perilsRestuls["numInProgressWhenInProgress"]
+      row["numReopenedWhenInProgress"] = perilsRestuls["numReopenedWhenInProgress"]
+      row["numResolvedWhenInProgress"] = perilsRestuls["numResolvedWhenInProgress"]
+      row["numClosedWhenInProgress"] = perilsRestuls["numClosedWhenInProgress"]
+      for key in perilsRestuls["numDescChangedCounters"]:
+        row["numDesc" + key.replace(" ", "")] = perilsRestuls["numDescChangedCounters"][key]
+      for key in perilsRestuls["transitionCounters"]:
+        row[key] = perilsRestuls["transitionCounters"][key]
+      for key in perilsRestuls["numCommitsEachStatus"]:
+        row["numCommits" + key.replace(" ", "")] = perilsRestuls["numCommitsEachStatus"][key]
 
+      return row
   '''
   It output all metrics to a csv file.
-  for each issue in issues of jiraApache
-    row = columnsName
-    perilsResults = issue.getJIRAItemsHistory()
-    align all the columns in row in perilsResults
-    row[numOpenRequirements] = jiraApache.getNumOpenFeatures
-    row[numInProgressRequirements] = jiraApache.getNumInProgressFeatures
-    row[numDevelopers] = self.gitApache.getNumUniqueDevelopers(issue.reqNAme)
-    pass the row dict to al CSV project
-    call outputCSVFile()
-    
-    
   '''
   def toCSVFile(self):
     # fd = open('document.csv', 'a')
-    # fd.write(myCsvRow)
+    # fd.write(myCsvrow)
     # fd.close()
     return self.csv.outputCSVFile()
