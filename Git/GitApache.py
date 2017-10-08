@@ -4,7 +4,7 @@ import Utility
 
 
 class GitApache:
-  gitURL = None
+  gitCloneURL = None
   localRepo = None
   allUnmergedAndClosedPullRequests = []
   gitProjectName = None
@@ -13,12 +13,15 @@ class GitApache:
   CLOSED_PULL_REQUEST_BY_PAGE = None
 
   '''
+  gitCloneURL - an url for http calls
+  localRepos - a local copy of a project
   gitProjectName - for formatting a url of git api
-  loalRepo - a local copy of a project
-  gitURL - url to the Github
   '''
-  def __init__(self, gitURL, localRepo, gitProjectName):
-    self.gitURL = gitURL
+  def __init__(self, gitCloneURL, localRepo, gitProjectName):
+    GitOperations.cloneAndPull(localRepo,
+                               gitProjectName,
+                               gitCloneURL)
+    self.gitCloneURL = gitCloneURL
     self.localRepo = localRepo
     self.gitProjectName = gitProjectName
     self.PULL_REQUESTS_BY_PAGE = self._Git_API_URL.format(gitProjectName, "all")
@@ -40,9 +43,6 @@ class GitApache:
         seen.add(dev)
     return len(uniqueDevelopers)
 
-  def getCommitsDatesForThisReq(self, reqName):
-    return GitOperations.getCommitsDatesForThisReq(self.localRepo, reqName)
-
   '''
   Get the percentage of pull requests merged by Heuristic 1
   H1 - At least one of the commits in the pull request appears in the target project’s master branch.
@@ -54,7 +54,7 @@ class GitApache:
     h1Merged = []
     for pr in self.__getAllUnmergedAndClosedPullRequests():
       hasAddedThisPr = False
-      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPiWithAuth(self.gitURL))
+      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPiWithAuth(pr["commits_url"]))
       for commit in commitDict:
         if self.__isInMasterBranch(commit["sha"]) and not hasAddedThisPr:
           h1Merged.append(pr)

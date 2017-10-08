@@ -64,7 +64,7 @@ def executeGitShellCommand(localRepo, commandList):
   return out.decode("ISO-8859-1")
 
 '''
-It clones a local branch on localRepo/gitProjectName by using gitCloneURL
+It clones a local branch on localRepos/gitProjectName by using gitCloneURL
 '''
 def cloneAndPull(localRepo, gitProjectName, gitCloneURL):
   repoDir = localRepo + gitProjectName
