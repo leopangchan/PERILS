@@ -206,7 +206,6 @@ class IssueApache:
     '''
     A helper for getNumCommittEachStatusByDateRange()
     '''
-
     def __formatTimeList(self, timeList):
         dateRanges = []
         oneDateRange = {}
