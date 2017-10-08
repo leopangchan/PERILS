@@ -45,7 +45,7 @@ class IssueApache:
         return result
 
     '''
-    Goal: To init data for PERILS-7 - Statuses of other existing requirements
+    To init data for PERILS-7 - Statuses of other existing requirements
     A public wrapper for _getStatuesOfOtherReqWhenThisInProgress()
     '''
     def getStatuesOfOtherReqWhenThisInProgress(self):
@@ -65,17 +65,17 @@ class IssueApache:
         return result
 
     '''
-    Goal: To resolve PERILS-2: transitions
+    To resolve PERILS-2: transitions
     '''
     def getNumEachTransition(self):
         self.__getHistoryItems(self.__initNumEachTransition)
         return self.transitionCounters
 
     '''
-    Goal: To resolve PERILS-16 - Statuses of other requirements when open
+    To resolve PERILS-16 - Statuses of other requirements when open
     '''
     def getOtherReqStatusesWhileThisOpen(self, jira, reqName):
-        self.__getHistoryItems(self._initFinishedOpenStatusTime)
+        self.__getHistoryItems(self.__initFinishedOpenStatusTime)
         result = {}
         timeClause = ""
         if self.openEndingTime != None:  # the issue is in open status without activities
@@ -88,16 +88,16 @@ class IssueApache:
         return result
 
     '''
-    Goal: To resolve PERILS-3 - Workflow compliance
+    To resolve PERILS-3 - Workflow compliance
       How many times a commit related to the requirement happened while the requirement was: 
         open, in progress, closed, resolved, reopened.
     '''
-    def getNumCommitDuringEachStatus(self):
+    def getNumCommitDuringEachStatus(self, localRepo):
         self.__getHistoryItems(self.__initDateRangeEachStatus)
-        return self.__getNumCommitEachStatusByDateRange(GitOperations.getCommitsDatesForThisReq(self.reqName))
+        return self.__getNumCommitEachStatusByDateRange(GitOperations.getCommitsDatesForThisReq(localRepo, self.reqName))
 
     '''
-    Goal: To resolve PERILS-11 - Changed.
+    To resolve PERILS-11 - Changed.
     A public wrapper for _initNumDescriptionChangedCounter()
     '''
     def getNumDescriptionChanged(self, reqName):
@@ -111,7 +111,7 @@ class IssueApache:
         return self.descriptionChangedCounters
 
     '''
-    Goal: To resolve PERILS-12
+    To resolve PERILS-12
     '''
     def __initStartInProgressTime(self, item, createdTime):
         global START_PROGRESS_TIME
@@ -120,7 +120,7 @@ class IssueApache:
                 START_PROGRESS_TIME = createdTime
 
     '''
-    Goal: To resolved PERILS-2
+    To resolved PERILS-2
     '''
     def __initNumEachTransition(self, item, _):
         global TRANSITION_COUNTERS
@@ -128,8 +128,8 @@ class IssueApache:
         TRANSITION_COUNTERS[key] += 1
 
     def __getHistoryItems(self, callback):
-        self._initHistories()
-        self._initCounters()
+        self.__initHistories()
+        self.__initCounters()
         result = {}
         self.currentStatus = Utility.OPEN_STR
         for history in self.histories:
@@ -142,14 +142,14 @@ class IssueApache:
         return result
 
     '''
-    Goal: To resolve PERILS-16 - Statuses of other requirements when open
+    To resolve PERILS-16 - Statuses of other requirements when open
     '''
-    def _initFinishedOpenStatusTime(self, item, createdTime):
+    def __initFinishedOpenStatusTime(self, item, createdTime):
         if self.currentStatus == Utility.OPEN_STR and item.toString != Utility.OPEN_STR:  # Resolved #6
             self.openEndingTime = createdTime
 
     '''
-    Goal: To resolvde PERILS-3 - Work compliance
+    To resolvde PERILS-3 - Work compliance
     Logic:
       1. Get the time ranges of each status
       2. Find all the commits
@@ -170,7 +170,7 @@ class IssueApache:
         self.statusTracking = item.toString
 
     '''
-    Goal: To get all commits within the time ranges of a status
+    To get all commits within the time ranges of a status
     Restraints: Two statuses might share the same date, so one commit could count twice.
     '''
 
@@ -204,7 +204,7 @@ class IssueApache:
         return numCommitEachStatus
 
     '''
-    Goal: A helper for getNumCommittEachStatusByDateRange()
+    A helper for getNumCommittEachStatusByDateRange()
     '''
 
     def __formatTimeList(self, timeList):
@@ -229,16 +229,16 @@ class IssueApache:
         return dateRanges
 
     '''
-    Goal: A call to JIRA API to get the changelog
+    A call to JIRA API to get the changelog
     '''
-    def _initHistories(self):
+    def __initHistories(self):
         issue = self.jiraAPI.issue(self.reqName, expand='changelog')
         self.histories = issue.changelog.histories
 
     '''
-    Goal: init all counter for each requirenment. 
+    init all counter for each requirenment. 
     '''
-    def _initCounters(self):
+    def __initCounters(self):
         self.descriptionChangedCounters = {}
         self.transitionCounters = {}
         self.startProgressTime = None

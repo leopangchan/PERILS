@@ -1,3 +1,5 @@
+import json
+
 STATE_STR = "status"
 OPEN_STR = "Open"
 IN_PROGRESS_STR = "In Progress"
@@ -13,3 +15,9 @@ def getAllPossibleTransitions():
             if indx != indx2:
                 transitions[val + "|" + val2] = [val, val2]
     return transitions
+
+'''
+Convert String of a JSON from the git api to a dictionary.
+'''
+def convertDictStringToDict(dictStr):
+  return json.loads(dictStr.decode("utf-8"))
