@@ -25,10 +25,10 @@ class IssueApache:
     jiraAPI = None
     jiraProjectName = None
 
-    def __init__(self, reqName, jiraAPI, projectName):
+    def __init__(self, reqName, jiraAPI, jiraProjectName):
         self.reqName = reqName
         self.jiraAPI = jiraAPI
-        self.jiraProjectName = projectName
+        self.jiraProjectName = jiraProjectName
         self.TRANSITIONS = Utility.getAllPossibleTransitions()
 
     def getStatusOfOtherReqBeforeThisInProgress(self):
@@ -74,7 +74,7 @@ class IssueApache:
     '''
     To resolve PERILS-16 - Statuses of other requirements when open
     '''
-    def getOtherReqStatusesWhileThisOpen(self, jira, reqName):
+    def getOtherReqStatusesWhileThisOpen(self):
         self.__getHistoryItems(self.__initFinishedOpenStatusTime)
         result = {}
         timeClause = ""
@@ -100,7 +100,7 @@ class IssueApache:
     To resolve PERILS-11 - Changed.
     A public wrapper for _initNumDescriptionChangedCounter()
     '''
-    def getNumDescriptionChanged(self, reqName):
+    def getNumDescriptionChanged(self):
         currentStatus = Utility.OPEN_STR
         for history in self.histories:
             for indx, item in enumerate(history.items):
@@ -110,6 +110,25 @@ class IssueApache:
                     currentStatus = item.toString
         return self.descriptionChangedCounters
 
+    '''
+    To resolve multiple tickets in the following order:
+      PERILS-12
+      PERILS-11
+      PERILS-3
+      PERILS-16
+      PERILS-7
+      PERILS-2
+    '''
+    def getJIRAItemHistory(self, localRepo):
+        results = {}
+        results.update(self.getStatusOfOtherReqBeforeThisInProgress().items())
+        results["numDescChangedCounters"] = self.getNumDescriptionChanged()
+        results["numCommitsEachStatus"] = self.getNumCommitDuringEachStatus(localRepo)
+        results.update(self.getOtherReqStatusesWhileThisOpen().items())
+        results.update(self.getStatuesOfOtherReqWhenThisInProgress().items())
+        results["transitionCounters"] = self.getNumEachTransition()
+
+        return results
     '''
     To resolve PERILS-12
     '''
@@ -251,4 +270,4 @@ class IssueApache:
             self.descriptionChangedCounters[key] = 0
         # initialize transitionCounters
         for key in self.TRANSITIONS:
-            TRANSITION_COUNTERS[key] = 0
+            self.transitionCounters[key] = 0
