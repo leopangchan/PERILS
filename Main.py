@@ -1,8 +1,8 @@
 import json
+import re
 import config
 from ProjectApache import ProjectApache
 
-# TODO handle either of jira or repo is not available.
 
 def main():
   with open("apache-projects.json", encoding="utf8") as dataFile:
@@ -11,18 +11,28 @@ def main():
     # loop through all the projects in apache-projects.json
     for projectName, info in projectData.items():
       urlInfo = {"repository":[], "jira":""}
+      # get information about the bug database
       bugDatabase = info["bug-database"] if "bug-database" in info else ""
-      repos = info["repository"] if "repository" in info else []
       urlInfo["jira"] = bugDatabase if bugDatabase.find("jira") >= 0 else None
-
+      # get information about the repositories
+      repos = info["repository"] if "repository" in info else []
+      localRepos = []
       for eachRepo in repos:
-        if eachRepo.find("git") >= 0:
+        if len(re.findall(".*\/(.*).git", eachRepo)) > 0:
           urlInfo["repository"].append(eachRepo)
-        elif eachRepo.find("svn") >= 0:
+          localRepos.append(config.LOCAL_REPO.format(projectName))
+        elif eachRepo.find("svn") > 0:
           # TODO handle mirrored repos
           urlInfo["repository"].append("")
-      localRepo = config.LOCAL_REPO.format(projectName)
-      proj = ProjectApache(urlInfo["jira"], urlInfo["repository"], "", localRepo)
+
+      # either of jira or git repo is not available.
+      if (urlInfo["jira"] == None or len( urlInfo["repository"]) == 0):
+        continue
+
+      proj = ProjectApache(urlInfo["jira"],
+                           urlInfo["repository"],
+                           config.CSV_URL,
+                           localRepos)
       proj.toCSVFile()
     dataFile.close()
 
