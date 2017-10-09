@@ -1,9 +1,7 @@
 # PERILS
 
 ### Get Started
-The project requires two local storages. One for a local branch for each Apache project's Git repo. One for a local folder that output the csv file.
-
-Please configure these two urls in config.py before run the project.
+The project requires two local storages. One for a local branch for each Apache project's Git repo. One for a local folder that output the csv file. Please configure these two urls in config.py before run the project.
 
 
 ### Technologies Used
