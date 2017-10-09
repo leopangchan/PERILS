@@ -17,7 +17,7 @@ class ProjectApache:
     self.jiraApache = JiraApache(re.findall(".*\/(.*)", jiraURL)[0])
     for index, gitUrl in enumerate(gitURLs):
       self.gitsApache.append(GitApache(gitUrl, localRepos[index], re.findall(".*\/(.*).git", gitUrl)[0]))
-    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVrows())
+    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
 
   # it initializes a list of strings of the headers
   def __initCSVHeaders(self):
@@ -66,10 +66,10 @@ class ProjectApache:
       row[numDevelopers] = self.gitsApache.getNumUniqueDevelopers(issue.reqNAme)
     return the row dict to al CSV project
   '''
-  def __initCSVrows(self):
+  def __initCSVRows(self):
     for issue in self.jiraApache.getAllIssuesApache():
       row = dict(self.__initCSVHeaders())
-      perilsRestuls = issue.getJIRAItemHistory(self.localRepos)
+      perilsRestuls = issue.getPerilsResults(self.localRepos)
       row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
       row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
       totalNumDevelopersInAllRepos = 0

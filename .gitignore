@@ -1,0 +1,4 @@
+.idea/*
+/Git/credentials.py
+__pycache__/*
+

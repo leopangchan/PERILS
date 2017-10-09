@@ -119,7 +119,7 @@ class IssueApache:
       PERILS-7
       PERILS-2
     '''
-    def getJIRAItemHistory(self, localRepo):
+    def getPerilsResults(self, localRepo):
         results = {}
         results.update(self.getStatusOfOtherReqBeforeThisInProgress().items())
         results["numDescChangedCounters"] = self.getNumDescriptionChanged()
