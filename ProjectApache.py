@@ -15,8 +15,11 @@ class ProjectApache:
     self.localRepos = localRepos
     self.columns = self.__initCSVHeaders()
     self.jiraApache = JiraApache(re.findall(".*\/(.*)", jiraURL)[0])
+    print (gitURLs)
     for index, gitUrl in enumerate(gitURLs):
-      self.gitsApache.append(GitApache(gitUrl, localRepos[index], re.findall(".*\/(.*).git", gitUrl)[0]))
+      print (gitUrl)
+      self.gitsApache.append(GitApache(gitUrl, localRepos[index],
+                                       re.findall(".*\/(.*).git", gitUrl)[0]))
     self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
 
   # it initializes a list of strings of the headers

@@ -1,13 +1,16 @@
 import json
+import Utility
 import re
 import config
 from ProjectApache import ProjectApache
 
-
+'''
+It loops all the projects in apache-project.json.
+'''
 def main():
-  with open("apache-projects.json", encoding="utf8") as dataFile:
-
+  with open("tika-projects.json", encoding="utf8") as dataFile:
     projectData = json.load(dataFile)
+    # Utility.prettyPrintJSON(projectData)
     # loop through all the projects in apache-projects.json
     for projectName, info in projectData.items():
       urlInfo = {"repository":[], "jira":""}
@@ -23,6 +26,9 @@ def main():
           localRepos.append(config.LOCAL_REPO.format(projectName))
         elif eachRepo.find("svn") > 0:
           # TODO handle mirrored repos
+          # extract the svn's name.
+          # uses the svn's name as a key in attempt to access a mirrored git repo.
+          # append git://git.apache.org/<svn's name>.git
           urlInfo["repository"].append("")
 
       # either of jira or git repo is not available.

@@ -21,3 +21,6 @@ Convert String of a JSON from the git api to a dictionary.
 '''
 def convertDictStringToDict(dictStr):
   return json.loads(dictStr.decode("utf-8"))
+
+def prettyPrintJSON(dict):
+    print (json.dumps(dict, indent=2))

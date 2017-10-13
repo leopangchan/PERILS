@@ -52,7 +52,7 @@ class IssueApache:
         self.__getHistoryItems(self.__initStartInProgressTime)
         result = {}
         if self.startProgressTime != None:
-            timeClause = " ON " + re.findall('(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', START_PROGRESS_TIME)[0]
+            timeClause = " ON " + re.findall('(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', self.startProgressTime)[0]
             result["numOpenWhenInProgress"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI, timeClause)
             result["numInProgressWhenInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI, timeClause)
             result["numReopenedWhenInProgress"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI, timeClause)
@@ -133,18 +133,16 @@ class IssueApache:
     To resolve PERILS-12
     '''
     def __initStartInProgressTime(self, item, createdTime):
-        global START_PROGRESS_TIME
         if item.field == Utility.STATE_STR:
             if (item.toString == Utility.IN_PROGRESS_STR):
-                START_PROGRESS_TIME = createdTime
+                self.startProgressTime = createdTime
 
     '''
     To resolved PERILS-2
     '''
     def __initNumEachTransition(self, item, _):
-        global TRANSITION_COUNTERS
         key = self.currentStatus + "|" + item.toString
-        TRANSITION_COUNTERS[key] += 1
+        self.transitionCounters[key] += 1
 
     def __getHistoryItems(self, callback):
         self.__initHistories()
@@ -208,7 +206,8 @@ class IssueApache:
                 for oneDateRange in self.__formatTimeList(timeList):
                     if commitNdx not in hasRecordedDateDict:
                         if self.END_TIME_STR not in oneDateRange and \
-                                GitOperations.compareGitDates(commitDate, oneDateRange[self.END_TIME_STR]):  # Example: a resolved issue that still have commits
+                                GitOperations.compareGitDates(commitDate, oneDateRange[self.END_TIME_STR]):
+                            # Example: a resolved issue that still have commits
                             numCommitEachStatus[key] += 1
                             hasRecordedDateDict[commitNdx] = True
                         elif self.END_TIME_STR in oneDateRange and \
@@ -229,7 +228,7 @@ class IssueApache:
         dateRanges = []
         oneDateRange = {}
 
-        for ndx, val in enumerate(timeList):  # formate a pair of startTime and endTime into one dict
+        for ndx, val in enumerate(timeList):  # format a pair of startTime and endTime into one dict
             if self.START_TIME_STR not in oneDateRange and self.START_TIME_STR not in val:
                 oneDateRange[self.END_TIME_STR] = val[self.END_TIME_STR]
             elif self.START_TIME_STR not in oneDateRange and self.START_TIME_STR in val:
