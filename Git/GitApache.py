@@ -32,6 +32,7 @@ class GitApache:
      This function is to not print the same name multiple times.
   '''
   def getNumUniqueDevelopers(self, reqName):
+    print ("getNumUniqueDevelopers = ", self.localRepo)
     developers = GitOperations.getGitLogInfo(self.localRepo,
                                              reqName,
                                              self.__getGitDeveloperForThisReq)
@@ -54,7 +55,7 @@ class GitApache:
     h1Merged = []
     for pr in self.__getAllUnmergedAndClosedPullRequests():
       hasAddedThisPr = False
-      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPiWithAuth(pr["commits_url"]))
+      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPIWithAuth(pr["commits_url"]))
       for commit in commitDict:
         if self.__isInMasterBranch(commit["sha"]) and not hasAddedThisPr:
           h1Merged.append(pr)
@@ -70,7 +71,7 @@ class GitApache:
     h2Merged = []
     for pr in self.__getAllUnmergedAndClosedPullRequests():
       hasAddedThisPr = False
-      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPiWithAuth(pr["commits_url"]))
+      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPIWithAuth(pr["commits_url"]))
       for commit in commitDict:
         if self.__isInMasterBranch(commit["sha"]) and \
                 self.__hasClosingKeyword(commit["sha"]) and \
@@ -90,7 +91,7 @@ class GitApache:
     h3Merged = []
     for pr in self.__getAllUnmergedAndClosedPullRequests():
       hasAddedThisPr = False
-      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPiWithAuth(pr["commits_url"]))
+      commitDict = Utility.convertDictStringToDict(GitOperations.requestByGitAPIWithAuth(pr["commits_url"]))
       for commit in commitDict:
         if (self.__isInMasterBranch(commit["sha"]) and
               self.__hasMergedKeyword(commit["sha"]) and
@@ -151,7 +152,7 @@ class GitApache:
     allPullRequestDict = []
     while True:
       pullRequestsOnePageDict = Utility.convertDictStringToDict(
-        GitOperations.requestByGitAPiWithAuth(self.PULL_REQUESTS_BY_PAGE + str(page)))
+        GitOperations.requestByGitAPIWithAuth(self.PULL_REQUESTS_BY_PAGE + str(page)))
       if (len(pullRequestsOnePageDict) == 0):
         break
       else:
@@ -168,7 +169,7 @@ class GitApache:
     allPullRequestDict = []
     while True:
       pullRequestsOnePageDict = Utility.convertDictStringToDict(
-        GitOperations.requestByGitAPiWithAuth(self.CLOSED_PULL_REQUEST_BY_PAGE + str(page)))
+        GitOperations.requestByGitAPIWithAuth(self.CLOSED_PULL_REQUEST_BY_PAGE + str(page)))
       if (len(pullRequestsOnePageDict) == 0):
         break
       else:

@@ -16,7 +16,6 @@ class ProjectApache:
     self.localRepos = localRepos
     self.columns = self.__initCSVHeaders()
     self.jiraApache = JiraApache(re.findall(".*\/(.*)", jiraURL)[0])
-    print (gitURLs)
     if (len(localRepos) != len(gitURLs)):
       sys.exit("the number of local repos doesn't match with the number of git urls.")
     for index, gitUrl in enumerate(gitURLs):
@@ -74,7 +73,7 @@ class ProjectApache:
   '''
   def __initCSVRows(self):
     for issue in self.jiraApache.getAllIssuesApache():
-      row = dict(self.__initCSVHeaders())
+      row = {key : None for key in self.__initCSVHeaders()}
       perilsRestuls = issue.getPerilsResults(self.localRepos)
       row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
       row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
@@ -94,11 +93,11 @@ class ProjectApache:
       row["numResolvedWhenInProgress"] = perilsRestuls["numResolvedWhenInProgress"]
       row["numClosedWhenInProgress"] = perilsRestuls["numClosedWhenInProgress"]
       for key in perilsRestuls["numDescChangedCounters"]:
-        row["numDesc" + key.replace(" ", "")] = perilsRestuls["numDescChangedCounters"][key]
+        row["numDesc{}".format(key.replace(" ", ""))] = perilsRestuls["numDescChangedCounters"][key]
       for key in perilsRestuls["transitionCounters"]:
         row[key] = perilsRestuls["transitionCounters"][key]
       for key in perilsRestuls["numCommitsEachStatus"]:
-        row["numCommits" + key.replace(" ", "")] = perilsRestuls["numCommitsEachStatus"][key]
+        row["numCommits{}".format(key.replace(" ", ""))] = perilsRestuls["numCommitsEachStatus"][key]
 
       return row
   '''

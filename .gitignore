@@ -1,4 +1,6 @@
 .idea/*
 /Git/credentials.py
 __pycache__/*
+/Git/__pycache__/*
+/Jira/__pycache__/*
 

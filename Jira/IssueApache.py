@@ -3,6 +3,7 @@ import re
 from Jira import JiraQuery
 import collections
 import Utility
+from collections import Counter
 
 class IssueApache:
     END_TIME_STR = "endTime"
@@ -52,11 +53,20 @@ class IssueApache:
         self.__getHistoryItems(self.__initStartInProgressTime)
         result = {}
         if self.startProgressTime != None:
-            timeClause = " ON " + re.findall('(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', self.startProgressTime)[0]
-            result["numOpenWhenInProgress"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI, timeClause)
-            result["numInProgressWhenInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI, timeClause)
-            result["numReopenedWhenInProgress"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI, timeClause)
-            result["numResolvedWhenInProgress"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI, timeClause)
+            print ("self.startProgressTime = ", self.startProgressTime)
+            timeClause = " ON " + re.findall('(\d{4}-\d{2}-\d{2})', self.startProgressTime)[0]
+            result["numOpenWhenInProgress"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI,
+                                                                                     self.jiraProjectName,
+                                                                                     timeClause)
+            result["numInProgressWhenInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
+                                                                                                self.jiraProjectName,
+                                                                                                timeClause)
+            result["numReopenedWhenInProgress"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI,
+                                                                                             self.jiraProjectName,
+                                                                                             timeClause)
+            result["numResolvedWhenInProgress"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
+                                                                                             self.jiraProjectName,
+                                                                                             timeClause)
             result["numClosedWhenInProgress"] = (self.jiraAPI, timeClause)
         else: # The issue hasn't started being developed.
             result["numOpenWhenInProgress"] = result["numInProgressWhenInProgress"] = result[
@@ -79,12 +89,23 @@ class IssueApache:
         result = {}
         timeClause = ""
         if self.openEndingTime != None:  # the issue is in open status without activities
-            timeClause = " BEFORE " + re.findall('(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', self.openEndingTime)[0]
-        result["numOpenWhileThisOpen"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI, timeClause)
-        result["numInProgressWhileThisOpen"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI, timeClause)
-        result["numReopenedWhileThisOpen"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI, timeClause)
-        result["numResolvedWhileThisOpen"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI, timeClause)
-        result["numClosedWhileThisOpen"] = JiraQuery.getNumIssueWhileClosedByClause(self.jiraAPI, timeClause)
+            # convert to the time format which is used by jql.
+            timeClause = " BEFORE " + re.findall('(\d{4}-\d{2}-\d{2})', self.openEndingTime)[0]
+        result["numOpenWhileThisOpen"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI,
+                                                                                self.jiraProjectName,
+                                                                                timeClause)
+        result["numInProgressWhileThisOpen"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
+                                                                                           self.jiraProjectName,
+                                                                                           timeClause)
+        result["numReopenedWhileThisOpen"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI,
+                                                                                        self.jiraProjectName,
+                                                                                        timeClause)
+        result["numResolvedWhileThisOpen"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
+                                                                                        self.jiraProjectName,
+                                                                                        timeClause)
+        result["numClosedWhileThisOpen"] = JiraQuery.getNumIssueWhileClosedByClause(self.jiraAPI,
+                                                                                    self.jiraProjectName,
+                                                                                    timeClause)
         return result
 
     '''
@@ -119,11 +140,14 @@ class IssueApache:
       PERILS-7
       PERILS-2
     '''
-    def getPerilsResults(self, localRepo):
+    def getPerilsResults(self, localRepos):
         results = {}
         results.update(self.getStatusOfOtherReqBeforeThisInProgress().items())
         results["numDescChangedCounters"] = self.getNumDescriptionChanged()
-        results["numCommitsEachStatus"] = self.getNumCommitDuringEachStatus(localRepo)
+        numCommitDuringEachStatusDict = Counter({key : 0 for key in Utility.STATUSES})
+        for localRepo in localRepos: # if multiple repos exist
+            numCommitDuringEachStatusDict += Counter(self.getNumCommitDuringEachStatus(localRepo))
+        results["numCommitsEachStatus"] = numCommitDuringEachStatusDict
         results.update(self.getOtherReqStatusesWhileThisOpen().items())
         results.update(self.getStatuesOfOtherReqWhenThisInProgress().items())
         results["transitionCounters"] = self.getNumEachTransition()
@@ -190,13 +214,9 @@ class IssueApache:
     To get all commits within the time ranges of a status
     Restraints: Two statuses might share the same date, so one commit could count twice.
     '''
-
     def __getNumCommitEachStatusByDateRange(self, commitDates):
-        numCommitEachStatus = {}
+        numCommitEachStatus = {key : 0 for key in Utility.STATUSES}
         hasRecordedDateDict = {}
-
-        for key in Utility.STATUSES:  # init the counter for each status
-            numCommitEachStatus[key] = 0
 
         if "numCommits" in commitDates and commitDates['numCommits'] == 0:
             return numCommitEachStatus
@@ -264,9 +284,5 @@ class IssueApache:
         self.isJustOpen = False  # PERILS-3
         self.dateRangeEachState = collections.OrderedDict()  # PERILS-3
         self.dateRangeEachState.clear()
-
-        for key in Utility.STATUSES:
-            self.descriptionChangedCounters[key] = 0
-        # initialize transitionCounters
-        for key in self.TRANSITIONS:
-            self.transitionCounters[key] = 0
+        self.descriptionChangedCounters = {key : 0 for key in Utility.STATUSES}
+        self.transitionCounters = {key: 0 for key in self.TRANSITIONS}

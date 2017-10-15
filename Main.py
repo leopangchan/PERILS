@@ -5,6 +5,8 @@ import sys
 import config
 from ProjectApache import ProjectApache
 
+_APACHE_GITHUB = "https://github.com/apache/{}"
+
 '''
 It loops all the projects in apache-project.json.
 '''
@@ -30,8 +32,8 @@ def main():
           # append git://git.apache.org/<svn's name>.git
           svnName = re.findall(".*\/asf\/(.*)?\/?", eachRepo)[0]
           svnName = svnName.replace("/", "")
-          if GitOperations.isValidURL("https://git.apache.org/repos/asf/{}.git".format(svnName.replace("/", ""))):
-            urlInfo["repository"].append("https://git.apache.org/repos/asf/{}.git".format(svnName.replace("/", "")))
+          if GitOperations.isValidURL(_APACHE_GITHUB.format(svnName)):
+            urlInfo["repository"].append(_APACHE_GITHUB.format(svnName))
             localRepos.append(config.LOCAL_REPO.format(projectName))
 
       # either of jira or git repo is not available.

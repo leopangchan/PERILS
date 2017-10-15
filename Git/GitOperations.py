@@ -13,6 +13,7 @@ The parent of getting git's logInfo.
       It gets logs of all commits that contain the string of the requirement.
 '''
 def getGitLogInfo(localRepo, reqName, callback):
+  print ("GitLogInfo = ", localRepo)
   repo = git.Repo(localRepo)
   logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
   if(len(logInfo) == 0):
@@ -40,9 +41,9 @@ def compareGitDates(date1, date2):
 '''
 Git API Request with PAT
 '''
-def requestByGitAPiWithAuth(url):
+def requestByGitAPIWithAuth(url):
   request = Request(url)
-  request.add_header("Authorization", "token %s" % credentials.personal_access_tokens)
+  request.add_header("Authorization", "token %s" % credentials.personal_access_token)
   response = urlopen(request)
   return response.read()
 
@@ -74,7 +75,7 @@ def cloneAndPull(localRepo, gitProjectName, gitCloneURL):
   repoDir = localRepo + gitProjectName
   if not os.path.isdir(repoDir) and not os.path.exists(repoDir):
     git.Git().clone(gitCloneURL.format(gitProjectName), repoDir)
-  git.cmd.Git(repoDir).pull()
+  # git.cmd.Git(repoDir).pull()
 
 
 def isValidURL(url):
