@@ -6,6 +6,7 @@ from urllib.request import Request, urlopen
 import sys
 import subprocess
 from Git import credentials
+import requests
 
 '''
 The parent of getting git's logInfo.
@@ -74,6 +75,15 @@ def cloneAndPull(localRepo, gitProjectName, gitCloneURL):
   if not os.path.isdir(repoDir) and not os.path.exists(repoDir):
     git.Git().clone(gitCloneURL.format(gitProjectName), repoDir)
   git.cmd.Git(repoDir).pull()
+
+
+def isValidURL(url):
+  try:
+      header = requests.head(url)
+      if header.status_code < 400:
+        return True
+  except Exception:
+      return False
 
 '''
 Get all the commits' dates of this requirement.

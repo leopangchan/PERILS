@@ -3,6 +3,7 @@ from Jira.JiraApache import JiraApache
 from CSV import CSV
 import re
 import Utility
+import sys
 
 class ProjectApache:
   localRepos = None
@@ -16,6 +17,8 @@ class ProjectApache:
     self.columns = self.__initCSVHeaders()
     self.jiraApache = JiraApache(re.findall(".*\/(.*)", jiraURL)[0])
     print (gitURLs)
+    if (len(localRepos) != len(gitURLs)):
+      sys.exit("the number of local repos doesn't match with the number of git urls.")
     for index, gitUrl in enumerate(gitURLs):
       print (gitUrl)
       self.gitsApache.append(GitApache(gitUrl, localRepos[index],
