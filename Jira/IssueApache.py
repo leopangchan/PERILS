@@ -146,7 +146,8 @@ class IssueApache:
         results["numDescChangedCounters"] = self.getNumDescriptionChanged()
         numCommitDuringEachStatusDict = Counter({key : 0 for key in Utility.STATUSES})
         for localRepo in localRepos: # if multiple repos exist
-            numCommitDuringEachStatusDict += Counter(self.getNumCommitDuringEachStatus(localRepo))
+            numCommitDuringEachStatusDict.update(self.getNumCommitDuringEachStatus(localRepo)) # this line removes all keys
+            # with 0 counting
         results["numCommitsEachStatus"] = numCommitDuringEachStatusDict
         results.update(self.getOtherReqStatusesWhileThisOpen().items())
         results.update(self.getStatuesOfOtherReqWhenThisInProgress().items())
