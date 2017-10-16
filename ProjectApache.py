@@ -72,6 +72,7 @@ class ProjectApache:
     return the row dict to al CSV project
   '''
   def __initCSVRows(self):
+    allRows = []
     for issue in self.jiraApache.getAllIssuesApache():
       row = {key : None for key in self.__initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
@@ -100,8 +101,9 @@ class ProjectApache:
       print ("numCommitsEachStatus in ProjectApache = ", perilsResults["numCommitsEachStatus"])
       for key in perilsResults["numCommitsEachStatus"]:
         row["numCommits{}".format(key.replace(" ", ""))] = perilsResults["numCommitsEachStatus"][key]
+      allRows.append(row)
+    return allRows
 
-      return row
   '''
   It output all metrics to a csv file.
   '''

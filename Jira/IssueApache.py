@@ -227,7 +227,8 @@ class IssueApache:
                 for oneDateRange in self.__formatTimeList(timeList):
                     if commitNdx not in hasRecordedDateDict:
                         if self.END_TIME_STR not in oneDateRange and \
-                                GitOperations.compareGitDates(commitDate, oneDateRange[self.END_TIME_STR]):
+                                GitOperations.compareGitDates(commitDate,
+                                oneDateRange[self.START_TIME_STR]):
                             # Example: a resolved issue that still have commits
                             numCommitEachStatus[key] += 1
                             hasRecordedDateDict[commitNdx] = True
@@ -235,7 +236,7 @@ class IssueApache:
                                 GitOperations.compareGitDates(oneDateRange[self.END_TIME_STR], commitDate):
                             numCommitEachStatus[key] += 1
                             hasRecordedDateDict[commitNdx] = True
-                        elif self.END_TIME_STR not in oneDateRange and \
+                        elif self.START_TIME_STR not in oneDateRange and \
                                 GitOperations.compareGitDates(oneDateRange[self.END_TIME_STR], commitDate):
                             numCommitEachStatus[key] += 1
                             hasRecordedDateDict[commitNdx] = True
