@@ -16,13 +16,11 @@ class ProjectApache:
     self.localRepos = localRepos
     self.columns = self.__initCSVHeaders()
     self.jiraApache = JiraApache(re.findall(".*\/(.*)", jiraURL)[0])
-    if (len(localRepos) != len(gitURLs)):
-      sys.exit("the number of local repos doesn't match with the number of git urls.")
     for index, gitUrl in enumerate(gitURLs):
-      print (gitUrl)
       self.gitsApache.append(GitApache(gitUrl, localRepos[index],
                                        re.findall(".*\/(.*).git", gitUrl)[0]))
-    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
+    self.rowsDict = self.__initCSVRows()
+    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.rowsDict)
 
   # it initializes a list of strings of the headers
   def __initCSVHeaders(self):
@@ -73,7 +71,10 @@ class ProjectApache:
   '''
   def __initCSVRows(self):
     allRows = []
+    count = 0
     for issue in self.jiraApache.getAllIssuesApache():
+      if count == 2:
+         break
       row = {key : None for key in self.__initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
       row["ticket"] = issue.reqName
@@ -98,11 +99,40 @@ class ProjectApache:
         row["numDesc{}".format(key.replace(" ", ""))] = perilsResults["numDescChangedCounters"][key]
       for key in perilsResults["transitionCounters"]:
         row[key] = perilsResults["transitionCounters"][key]
-      print ("numCommitsEachStatus in ProjectApache = ", perilsResults["numCommitsEachStatus"])
       for key in perilsResults["numCommitsEachStatus"]:
         row["numCommits{}".format(key.replace(" ", ""))] = perilsResults["numCommitsEachStatus"][key]
       allRows.append(row)
+      count += 1
+      # TODO: uses allRows to get each ratio of column for each PERIL
     return allRows
+
+
+  '''
+  It calculates the sum of all values in a column for colName.
+  @param colName - the name of a column for which the sum is calculated
+  '''
+  def getColumnSum(colName):
+    r = [item[colName] for item in self.rowsDict]
+    print ("list of columnSum = ", r)
+    return sum(r)
+
+  '''
+  It loops a list of colName to the sum of values of columns for a peril. 
+  @param colNames - a list of colNames for a peril
+  '''
+  def getPERILSum(colNames):
+    allColumnsSum = 0
+    for colName in colNames:
+      allColumnsSum += getColumnSum(colName)
+    return allColumnsSum
+
+  '''
+  Calculate the ratio of colName's sum / allColumnsSum
+  @param colName - the column for which a ratio is calculated
+  @param colNames - the columns of a peril that colName belongs to
+  '''
+  def getRatioForOneColumnOfPERIL(colName, colNames):
+    return getColumnSum(colName) / getPERILSum(colNames)
 
   '''
   It output all metrics to a csv file.
