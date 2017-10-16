@@ -23,8 +23,8 @@ class CSV:
         return writer
     
     '''
-      It calculates the sum of all values in a column for colName
-      @param colName - the name of a column where the sum is calculated.
+      It calculates the sum of all values in a column for colName.
+      @param colName - the name of a column for which the sum is calculated
     '''
     def getColumnSum(colName):
       r = [item[colName] for item in self.rowsDict]
@@ -32,9 +32,8 @@ class CSV:
       return sum(r)
 
     '''
-      It loops a list of colName to the sum of the sum of ColumnSum of each
-      column. 
-      @param colNames - a list of colName
+      It loops a list of colName to the sum of values of columns for a peril. 
+      @param colNames - a list of colNames for a peril
     '''
     def getTotalColumnsSum(colNames):
       allColumnsSum = 0
@@ -45,7 +44,7 @@ class CSV:
     '''
       Calculate the ratio of colName's sum / allColumnsSum
       @param colName - the column for which a ratio is calculated
-      @param colNames - the set of columns that colName belongs to
+      @param colNames - the columns of a peril that colName belongs to
     '''
     def getRatioForOneColumn(colName, colNames):
       return getColumnSum(colName) / getTotalColumnsSum(colNames)
