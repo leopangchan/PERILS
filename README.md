@@ -1,5 +1,8 @@
 # PERILS
 
+### Abstract
+Github and JIRA have become the most important sources for software engineering researches. However, there are potential perils of mining data from them. We defined a set of perils in order to help people measure the validity of the data.
+
 ### Get Started
 The project requires two local storages. One for a local branch for each Apache project's Git repo. One for a local folder that output the csv file. Please configure these two urls in config.py before run the project.
 
