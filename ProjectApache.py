@@ -74,30 +74,32 @@ class ProjectApache:
   def __initCSVRows(self):
     for issue in self.jiraApache.getAllIssuesApache():
       row = {key : None for key in self.__initCSVHeaders()}
-      perilsRestuls = issue.getPerilsResults(self.localRepos)
+      perilsResults = issue.getPerilsResults(self.localRepos)
+      row["ticket"] = issue.reqName
       row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
       row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
       totalNumDevelopersInAllRepos = 0
       for gitApache in self.gitsApache:
         totalNumDevelopersInAllRepos += gitApache.getNumUniqueDevelopers(issue.reqName)
       row["numDevelopers"] = totalNumDevelopersInAllRepos
-      row["numDevelopedRequirementsBeforeThisInProgress"] = perilsRestuls["numDevelopedRequirementsBeforeThisInProgress"]
-      row["numOpenWhileThisOpen"] = perilsRestuls['numOpenWhileThisOpen']
-      row["numInProgressWhileThisOpen"] = perilsRestuls['numInProgressWhileThisOpen']
-      row["numResolvedWhileThisOpen"] = perilsRestuls['numResolvedWhileThisOpen']
-      row["numReopenedWhileThisOpen"] = perilsRestuls['numReopenedWhileThisOpen']
-      row["numClosedWhileThisOpen"] = perilsRestuls['numClosedWhileThisOpen']
-      row["numOpenWhenInProgress"] = perilsRestuls['numOpenWhenInProgress']
-      row["numInProgressWhenInProgress"] = perilsRestuls["numInProgressWhenInProgress"]
-      row["numReopenedWhenInProgress"] = perilsRestuls["numReopenedWhenInProgress"]
-      row["numResolvedWhenInProgress"] = perilsRestuls["numResolvedWhenInProgress"]
-      row["numClosedWhenInProgress"] = perilsRestuls["numClosedWhenInProgress"]
-      for key in perilsRestuls["numDescChangedCounters"]:
-        row["numDesc{}".format(key.replace(" ", ""))] = perilsRestuls["numDescChangedCounters"][key]
-      for key in perilsRestuls["transitionCounters"]:
-        row[key] = perilsRestuls["transitionCounters"][key]
-      for key in perilsRestuls["numCommitsEachStatus"]:
-        row["numCommits{}".format(key.replace(" ", ""))] = perilsRestuls["numCommitsEachStatus"][key]
+      row["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
+      row["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
+      row["numInProgressWhileThisOpen"] = perilsResults['numInProgressWhileThisOpen']
+      row["numResolvedWhileThisOpen"] = perilsResults['numResolvedWhileThisOpen']
+      row["numReopenedWhileThisOpen"] = perilsResults['numReopenedWhileThisOpen']
+      row["numClosedWhileThisOpen"] = perilsResults['numClosedWhileThisOpen']
+      row["numOpenWhenInProgress"] = perilsResults['numOpenWhenInProgress']
+      row["numInProgressWhenInProgress"] = perilsResults["numInProgressWhenInProgress"]
+      row["numReopenedWhenInProgress"] = perilsResults["numReopenedWhenInProgress"]
+      row["numResolvedWhenInProgress"] = perilsResults["numResolvedWhenInProgress"]
+      row["numClosedWhenInProgress"] = perilsResults["numClosedWhenInProgress"]
+      for key in perilsResults["numDescChangedCounters"]:
+        row["numDesc{}".format(key.replace(" ", ""))] = perilsResults["numDescChangedCounters"][key]
+      for key in perilsResults["transitionCounters"]:
+        row[key] = perilsResults["transitionCounters"][key]
+      print ("numCommitsEachStatus in ProjectApache = ", perilsResults["numCommitsEachStatus"])
+      for key in perilsResults["numCommitsEachStatus"]:
+        row["numCommits{}".format(key.replace(" ", ""))] = perilsResults["numCommitsEachStatus"][key]
 
       return row
   '''
