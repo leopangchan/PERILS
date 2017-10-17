@@ -8,6 +8,9 @@ RESOLVED_STR = "Resolved"
 CLOSED_STR = "Closed"
 STATUSES = [OPEN_STR, IN_PROGRESS_STR, REOPENED_STR, RESOLVED_STR, CLOSED_STR]
 
+'''
+It returns a dictionary that has all possible transitions of status in JIRA.
+'''
 def getAllPossibleTransitions():
     transitions = {}
     for indx, val in enumerate(STATUSES):

@@ -13,7 +13,6 @@ The parent of getting git's logInfo.
       It gets logs of all commits that contain the string of the requirement.
 '''
 def getGitLogInfo(localRepo, reqName, callback):
-  print ("GitLogInfo = ", localRepo)
   repo = git.Repo(localRepo)
   logInfo = repo.git.log("--all", "-i", "--grep=" + reqName)
   if(len(logInfo) == 0):
