@@ -18,6 +18,7 @@ class JiraApache:
     })
     self.jiraProjectName = jiraProjectName
     self.__setAllIssuesApache()
+    print("initializing jiraProjectName = ", jiraProjectName)
 
   '''
   To resolve this question (No related ticket in JIRA):

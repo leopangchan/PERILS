@@ -31,6 +31,7 @@ class IssueApache:
         self.jiraAPI = jiraAPI
         self.jiraProjectName = jiraProjectName
         self.TRANSITIONS = Utility.getAllPossibleTransitions()
+        print("initializing issue = ", reqName)
 
     def getStatusOfOtherReqBeforeThisInProgress(self):
         self.__getHistoryItems(self.__initStartInProgressTime)

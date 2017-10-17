@@ -11,6 +11,8 @@ class ProjectApache:
   gitsApache = []
   csv = None
   columns = None
+  generalProjectInfo = None
+  oldperils9 = None
   perils6 = None
   perils12 = None
   perils11 = None
@@ -20,6 +22,10 @@ class ProjectApache:
   perils2 = None
 
   def __init__(self, jiraURL, gitURLs, csvURL, localRepos):
+    self.generalProjectInfo = ["project",
+                               "numOpenRequirements",
+                               "numInProgressRequirements"]
+    self.oldperils9 = ["PRMergedByNonGithub"]
     self.perils6 = ["numDevelopers"]
     self.perils12 = ["numDevelopedRequirementsBeforeThisInProgress"]
     self.perils11 = ["numDescOpen",
@@ -42,7 +48,7 @@ class ProjectApache:
                     "numResolvedWhileThisOpen",
                     "numReopenedWhileThisOpen",
                     "numClosedWhileThisOpen"]
-    self.perils2 = Utility.getAllPossibleTransitions()
+    self.perils2 = [key for key in Utility.getAllPossibleTransitions()]
     self.localRepos = localRepos
     self.columns = self.__initCSVHeaders()
     self.jiraApache = JiraApache(re.findall(".*/(.*)", jiraURL)[0])
@@ -53,8 +59,9 @@ class ProjectApache:
 
   # it initializes a list of strings of the headers
   def __initCSVHeaders(self):
-    columnsNames = ['numOpenRequirements',
-                    'numInProgressRequirements']
+    columnsNames = []
+    columnsNames += self.generalProjectInfo
+    columnsNames += self.oldperils9
     columnsNames += self.perils6 + self.perils12 + self.perils11 + self.perils3
     columnsNames += self.perils16 + self.perils7 + self.perils2
     return columnsNames
@@ -72,10 +79,8 @@ class ProjectApache:
   def __initCSVRows(self):
     perilsDataForAllIssues = []
     row = {key : None for key in self.__initCSVHeaders()}
-    count = 0
+
     for issue in self.jiraApache.getAllIssuesApache():
-      if count == 5:
-        break
       perilsForIssue = {key : None for key in self.__initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
       totalNumDevelopersInAllRepos = 0
@@ -102,16 +107,22 @@ class ProjectApache:
         perilsForIssue[key] = perilsResults["transitionCounters"][key]
       for key in perilsResults["numCommitsEachStatus"]:
         perilsForIssue["numCommits{}".format(key.replace(" ", ""))] = perilsResults["numCommitsEachStatus"][key]
-      perilsDataForAllIssues.append(perilsForIssue)
-      count += 1
 
+      perilsDataForAllIssues.append(perilsForIssue)
+
+    for key in row:
+      if key not in self.generalProjectInfo: # generalProjectInfo have not sumed metrics
+          row[key] = self.__getRatioForOneColumnOfPERIL(key,
+                                                        self.__getPERILSList(key),
+                                                        perilsDataForAllIssues) # getMappingFrom column to perils
+    row["PRMergedByNonGithub"] = 0
+    for gitApache in self.gitsApache:
+      row["PRMergedByNonGithub"] += gitApache.getPercentageByH1() + gitApache.getPercentageByH2() +\
+                                    gitApache.getPercentageByH3() + gitApache.getPercentageByH4()
+    row["project"] = self.jiraApache.jiraProjectName
     row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
     row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
-    for key in row:
-      print ("key = " , key , "\n row = ", row, "\n\n\n")
-      row[key] = self.__getRatioForOneColumnOfPERIL(key,
-                                                    self.__getPERILSList(key),
-                                                    perilsDataForAllIssues) # getMappingFrom column to perils
+
     return row
 
 
@@ -142,7 +153,7 @@ class ProjectApache:
   @param colName - the name of a column for which the sum is calculated
   '''
   def __getColumnSum(self, colName, perilsDataForAllIssues):
-    r = [item[colName] for item in perilsDataForAllIssues]
+    r = [item[colName] for item in perilsDataForAllIssues if isinstance(item[colName], int)]
     print ("list of columnSum = ", r)
     return sum(r)
 
@@ -162,7 +173,8 @@ class ProjectApache:
   @param colNames - the columns of a peril that colName belongs to
   '''
   def __getRatioForOneColumnOfPERIL(self, colName, colNames, perilsDataForAllIssues):
-    return self.__getColumnSum(colName, perilsDataForAllIssues) / self.__getPERILSum(colNames, perilsDataForAllIssues)
+    allColumnSum = self.__getPERILSum(colNames, perilsDataForAllIssues)
+    return 0 if allColumnSum == 0 else self.__getColumnSum(colName, perilsDataForAllIssues) / allColumnSum
 
   '''
   It output all metrics to a csv file.

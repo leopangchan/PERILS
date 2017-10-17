@@ -26,13 +26,13 @@ class GitApache:
     self.gitProjectName = gitProjectName
     self.PULL_REQUESTS_BY_PAGE = self._Git_API_URL.format(gitProjectName, "all")
     self.CLOSED_PULL_REQUEST_BY_PAGE = self._Git_API_URL.format(gitProjectName, "closed")
+    print ("initializing gitProjectName = ", gitProjectName, "\n git url = ", gitCloneURL)
 
   '''
   Multiple commits might be made by the same developer.
      This function is to not print the same name multiple times.
   '''
   def getNumUniqueDevelopers(self, reqName):
-    print ("getNumUniqueDevelopers = ", self.localRepo)
     developers = GitOperations.getGitLogInfo(self.localRepo,
                                              reqName,
                                              self.__getGitDeveloperForThisReq)
