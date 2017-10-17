@@ -53,7 +53,6 @@ class IssueApache:
         self.__getHistoryItems(self.__initStartInProgressTime)
         result = {}
         if self.startProgressTime != None:
-            print ("self.startProgressTime = ", self.startProgressTime)
             timeClause = " ON " + re.findall('(\d{4}-\d{2}-\d{2})', self.startProgressTime)[0]
             result["numOpenWhenInProgress"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI,
                                                                                      self.jiraProjectName,
@@ -67,7 +66,9 @@ class IssueApache:
             result["numResolvedWhenInProgress"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
                                                                                              self.jiraProjectName,
                                                                                              timeClause)
-            result["numClosedWhenInProgress"] = (self.jiraAPI, timeClause)
+            result["numClosedWhenInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
+                                                                                            self.jiraProjectName,
+                                                                                            timeClause)
         else: # The issue hasn't started being developed.
             result["numOpenWhenInProgress"] = result["numInProgressWhenInProgress"] = result[
                 "numReopenedWhenInProgress"] = "NA"

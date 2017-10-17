@@ -11,52 +11,52 @@ class ProjectApache:
   gitsApache = []
   csv = None
   columns = None
+  perils6 = None
+  perils12 = None
+  perils11 = None
+  perils3 = None
+  perils16 = None
+  perils7 = None
+  perils2 = None
 
   def __init__(self, jiraURL, gitURLs, csvURL, localRepos):
+    self.perils6 = ["numDevelopers"]
+    self.perils12 = ["numDevelopedRequirementsBeforeThisInProgress"]
+    self.perils11 = ["numDescOpen",
+                     "numDescInProgress",
+                     "numDescResolved",
+                     "numDescReopened",
+                     "numDescClosed"]
+    self.perils3 = ["numCommitsOpen",
+                    "numCommitsInProgress",
+                    "numCommitsResolved",
+                    "numCommitsReopened",
+                    "numCommitsClosed"]
+    self.perils16 = ["numOpenWhileThisOpen",
+                     "numInProgressWhileThisOpen",
+                     "numResolvedWhileThisOpen",
+                     "numReopenedWhileThisOpen",
+                     "numClosedWhileThisOpen"]
+    self.perils7 = ["numOpenWhileThisOpen",
+                    "numInProgressWhileThisOpen",
+                    "numResolvedWhileThisOpen",
+                    "numReopenedWhileThisOpen",
+                    "numClosedWhileThisOpen"]
+    self.perils2 = Utility.getAllPossibleTransitions()
     self.localRepos = localRepos
     self.columns = self.__initCSVHeaders()
-    self.jiraApache = JiraApache(re.findall(".*\/(.*)", jiraURL)[0])
+    self.jiraApache = JiraApache(re.findall(".*/(.*)", jiraURL)[0])
     for index, gitUrl in enumerate(gitURLs):
       self.gitsApache.append(GitApache(gitUrl, localRepos[index],
-                                       re.findall(".*\/(.*).git", gitUrl)[0]))
-    self.rowsDict = self.__initCSVRows()
-    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.rowsDict)
+                                       re.findall(".*/(.*).git", gitUrl)[0]))
+    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
 
   # it initializes a list of strings of the headers
   def __initCSVHeaders(self):
-    columnsNames = [
-      'numOpenRequirements',
-      'numInProgressRequirements',
-      'ticket',
-      # PERILS-6
-      'numDevelopers',
-      # PERILS-12
-      'numDevelopedRequirementsBeforeThisInProgress',
-      # PERILS-11
-      'numDescOpen',
-      'numDescInProgress',
-      'numDescResolved',
-      'numDescReopened',
-      'numDescClosed',
-      # PERILS-3
-      "numCommitsOpen",
-      "numCommitsInProgress",
-      "numCommitsResolved",
-      "numCommitsReopened",
-      "numCommitsClosed",
-      # PERILS-16
-      "numOpenWhileThisOpen",
-      "numInProgressWhileThisOpen",
-      "numResolvedWhileThisOpen",
-      "numReopenedWhileThisOpen",
-      "numClosedWhileThisOpen",
-      # PERILS-7
-      "numOpenWhenInProgress",
-      "numInProgressWhenInProgress",
-      "numReopenedWhenInProgress",
-      "numResolvedWhenInProgress",
-      "numClosedWhenInProgress"]
-    columnsNames += Utility.getAllPossibleTransitions()
+    columnsNames = ['numOpenRequirements',
+                    'numInProgressRequirements']
+    columnsNames += self.perils6 + self.perils12 + self.perils11 + self.perils3
+    columnsNames += self.perils16 + self.perils7 + self.perils2
     return columnsNames
 
   '''
@@ -70,49 +70,79 @@ class ProjectApache:
     return the row dict to al CSV project
   '''
   def __initCSVRows(self):
-    allRows = []
+    perilsDataForAllIssues = []
+    row = {key : None for key in self.__initCSVHeaders()}
     count = 0
     for issue in self.jiraApache.getAllIssuesApache():
-      if count == 2:
-         break
-      row = {key : None for key in self.__initCSVHeaders()}
+      if count == 5:
+        break
+      perilsForIssue = {key : None for key in self.__initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
-      row["ticket"] = issue.reqName
-      row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
-      row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
       totalNumDevelopersInAllRepos = 0
       for gitApache in self.gitsApache:
         totalNumDevelopersInAllRepos += gitApache.getNumUniqueDevelopers(issue.reqName)
-      row["numDevelopers"] = totalNumDevelopersInAllRepos
-      row["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
-      row["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
-      row["numInProgressWhileThisOpen"] = perilsResults['numInProgressWhileThisOpen']
-      row["numResolvedWhileThisOpen"] = perilsResults['numResolvedWhileThisOpen']
-      row["numReopenedWhileThisOpen"] = perilsResults['numReopenedWhileThisOpen']
-      row["numClosedWhileThisOpen"] = perilsResults['numClosedWhileThisOpen']
-      row["numOpenWhenInProgress"] = perilsResults['numOpenWhenInProgress']
-      row["numInProgressWhenInProgress"] = perilsResults["numInProgressWhenInProgress"]
-      row["numReopenedWhenInProgress"] = perilsResults["numReopenedWhenInProgress"]
-      row["numResolvedWhenInProgress"] = perilsResults["numResolvedWhenInProgress"]
-      row["numClosedWhenInProgress"] = perilsResults["numClosedWhenInProgress"]
-      for key in perilsResults["numDescChangedCounters"]:
-        row["numDesc{}".format(key.replace(" ", ""))] = perilsResults["numDescChangedCounters"][key]
-      for key in perilsResults["transitionCounters"]:
-        row[key] = perilsResults["transitionCounters"][key]
-      for key in perilsResults["numCommitsEachStatus"]:
-        row["numCommits{}".format(key.replace(" ", ""))] = perilsResults["numCommitsEachStatus"][key]
-      allRows.append(row)
-      count += 1
-      # TODO: uses allRows to get each ratio of column for each PERIL
-    return allRows
+      perilsForIssue["numDevelopers"] = totalNumDevelopersInAllRepos
+      perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
 
+      perilsForIssue["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
+      perilsForIssue["numInProgressWhileThisOpen"] = perilsResults['numInProgressWhileThisOpen']
+      perilsForIssue["numResolvedWhileThisOpen"] = perilsResults['numResolvedWhileThisOpen']
+      perilsForIssue["numReopenedWhileThisOpen"] = perilsResults['numReopenedWhileThisOpen']
+      perilsForIssue["numClosedWhileThisOpen"] = perilsResults['numClosedWhileThisOpen']
+
+      perilsForIssue["numOpenWhenInProgress"] = perilsResults['numOpenWhenInProgress']
+      perilsForIssue["numInProgressWhenInProgress"] = perilsResults["numInProgressWhenInProgress"]
+      perilsForIssue["numReopenedWhenInProgress"] = perilsResults["numReopenedWhenInProgress"]
+      perilsForIssue["numResolvedWhenInProgress"] = perilsResults["numResolvedWhenInProgress"]
+      perilsForIssue["numClosedWhenInProgress"] = perilsResults["numClosedWhenInProgress"]
+
+      for key in perilsResults["numDescChangedCounters"]:
+        perilsForIssue["numDesc{}".format(key.replace(" ", ""))] = perilsResults["numDescChangedCounters"][key]
+      for key in perilsResults["transitionCounters"]:
+        perilsForIssue[key] = perilsResults["transitionCounters"][key]
+      for key in perilsResults["numCommitsEachStatus"]:
+        perilsForIssue["numCommits{}".format(key.replace(" ", ""))] = perilsResults["numCommitsEachStatus"][key]
+      perilsDataForAllIssues.append(perilsForIssue)
+      count += 1
+
+    row["numOpenRequirements"] = self.jiraApache.getNumOpenFeatures()
+    row["numInProgressRequirements"] = self.jiraApache.getNumInProgressFeatures()
+    for key in row:
+      print ("key = " , key , "\n row = ", row, "\n\n\n")
+      row[key] = self.__getRatioForOneColumnOfPERIL(key,
+                                                    self.__getPERILSList(key),
+                                                    perilsDataForAllIssues) # getMappingFrom column to perils
+    return row
+
+
+  '''
+  It finds the peril that passed key belongs to.
+  '''
+  def __getPERILSList(self, key):
+    if key in self.perils6:
+      return self.perils6
+    elif key in self.perils12:
+      return self.perils12
+    elif key in self.perils11:
+      return self.perils11
+    elif key in self.perils3:
+      return self.perils3
+    elif key in self.perils16:
+      return self.perils16
+    elif key in self.perils7:
+      return self.perils7
+    elif key in self.perils2:
+      return self.perils2
+    else:
+      print (key, "is not found in any perils.")
+      sys.exit()
 
   '''
   It calculates the sum of all values in a column for colName.
   @param colName - the name of a column for which the sum is calculated
   '''
-  def getColumnSum(colName):
-    r = [item[colName] for item in self.rowsDict]
+  def __getColumnSum(self, colName, perilsDataForAllIssues):
+    r = [item[colName] for item in perilsDataForAllIssues]
     print ("list of columnSum = ", r)
     return sum(r)
 
@@ -120,10 +150,10 @@ class ProjectApache:
   It loops a list of colName to the sum of values of columns for a peril. 
   @param colNames - a list of colNames for a peril
   '''
-  def getPERILSum(colNames):
+  def __getPERILSum(self, colNames, perilsDataForAllIssues):
     allColumnsSum = 0
     for colName in colNames:
-      allColumnsSum += getColumnSum(colName)
+      allColumnsSum += self.__getColumnSum(colName, perilsDataForAllIssues)
     return allColumnsSum
 
   '''
@@ -131,8 +161,8 @@ class ProjectApache:
   @param colName - the column for which a ratio is calculated
   @param colNames - the columns of a peril that colName belongs to
   '''
-  def getRatioForOneColumnOfPERIL(colName, colNames):
-    return getColumnSum(colName) / getPERILSum(colNames)
+  def __getRatioForOneColumnOfPERIL(self, colName, colNames, perilsDataForAllIssues):
+    return self.__getColumnSum(colName, perilsDataForAllIssues) / self.__getPERILSum(colNames, perilsDataForAllIssues)
 
   '''
   It output all metrics to a csv file.
@@ -142,3 +172,4 @@ class ProjectApache:
     # fd.write(myCsvrow)
     # fd.close()
     return self.csv.outputCSVFile()
+
