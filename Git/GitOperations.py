@@ -71,9 +71,13 @@ def executeGitShellCommand(localRepo, commandList):
 It clones a local branch on localRepos/gitProjectName by using gitCloneURL
 '''
 def cloneAndPull(localRepo, gitProjectName, gitCloneURL):
-  repoDir = localRepo + gitProjectName
+  invalidCharForFile = ['/', '\\', ':', '*', '?', '\', '"', '<', '>', '|'"]
+  goodGitProjectName = None
+  for c in invalidCharForFile:
+      goodGitProjectName = gitProjectName.replace(c, "-")
+  repoDir = localRepo + goodGitProjectName
   if not os.path.isdir(repoDir) and not os.path.exists(repoDir):
-    git.Git().clone(gitCloneURL.format(gitProjectName), repoDir)
+    git.Git().clone(gitCloneURL.format(), repoDir)
   # git.cmd.Git(repoDir).pull()
 
 

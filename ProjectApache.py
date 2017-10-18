@@ -79,7 +79,7 @@ class ProjectApache:
   def __initCSVRows(self):
     perilsDataForAllIssues = []
     row = {key : None for key in self.__initCSVHeaders()}
-
+    # initialize a dictionary for calculate portions
     for issue in self.jiraApache.getAllIssuesApache():
       perilsForIssue = {key : None for key in self.__initCSVHeaders()}
       perilsResults = issue.getPerilsResults(self.localRepos)
@@ -88,33 +88,31 @@ class ProjectApache:
         totalNumDevelopersInAllRepos += gitApache.getNumUniqueDevelopers(issue.reqName)
       perilsForIssue["numDevelopers"] = totalNumDevelopersInAllRepos
       perilsForIssue["numDevelopedRequirementsBeforeThisInProgress"] = perilsResults["numDevelopedRequirementsBeforeThisInProgress"]
-
       perilsForIssue["numOpenWhileThisOpen"] = perilsResults['numOpenWhileThisOpen']
       perilsForIssue["numInProgressWhileThisOpen"] = perilsResults['numInProgressWhileThisOpen']
       perilsForIssue["numResolvedWhileThisOpen"] = perilsResults['numResolvedWhileThisOpen']
       perilsForIssue["numReopenedWhileThisOpen"] = perilsResults['numReopenedWhileThisOpen']
       perilsForIssue["numClosedWhileThisOpen"] = perilsResults['numClosedWhileThisOpen']
-
       perilsForIssue["numOpenWhenInProgress"] = perilsResults['numOpenWhenInProgress']
       perilsForIssue["numInProgressWhenInProgress"] = perilsResults["numInProgressWhenInProgress"]
       perilsForIssue["numReopenedWhenInProgress"] = perilsResults["numReopenedWhenInProgress"]
       perilsForIssue["numResolvedWhenInProgress"] = perilsResults["numResolvedWhenInProgress"]
       perilsForIssue["numClosedWhenInProgress"] = perilsResults["numClosedWhenInProgress"]
-
       for key in perilsResults["numDescChangedCounters"]:
         perilsForIssue["numDesc{}".format(key.replace(" ", ""))] = perilsResults["numDescChangedCounters"][key]
       for key in perilsResults["transitionCounters"]:
         perilsForIssue[key] = perilsResults["transitionCounters"][key]
       for key in perilsResults["numCommitsEachStatus"]:
         perilsForIssue["numCommits{}".format(key.replace(" ", ""))] = perilsResults["numCommitsEachStatus"][key]
-
       perilsDataForAllIssues.append(perilsForIssue)
 
+    # Calculates portion of each peril.
     for key in row:
-      if key not in self.generalProjectInfo: # generalProjectInfo have not sumed metrics
+      if key not in self.generalProjectInfo and not key in self.oldperils9: # generalProjectInfo have not sumed metrics
           row[key] = self.__getRatioForOneColumnOfPERIL(key,
                                                         self.__getPERILSList(key),
                                                         perilsDataForAllIssues) # getMappingFrom column to perils
+    # Calculates metrics that don't need SUM.
     row["PRMergedByNonGithub"] = 0
     for gitApache in self.gitsApache:
       row["PRMergedByNonGithub"] += gitApache.getPercentageByH1() + gitApache.getPercentageByH2() +\
