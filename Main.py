@@ -1,12 +1,28 @@
 import json
 from Git import GitOperations
 import re
-import sys
+import Utility
 import config
 from ProjectApache import ProjectApache
 
 _APACHE_GITHUB = "https://github.com/apache/{}"
 
+# def __validGitRepo(repoURL):
+#   gitUrlByRegex = re.findall("(?:.*)(https?.*)", eachRepo)
+#   if len(re.findall("(git:)(:?.*)", eachRepo)) > 0:  # Valid git clone url.
+#     return
+#     urlInfo["repository"].append(gitUrlByRegex[0])
+#     localRepos.append(config.LOCAL_REPO.format(projectName))
+#   elif len(gitUrlByRegex) > 0:  # git clone ulr with https
+#     urlInfo["repository"].append(gitUrlByRegex[0])
+#     localRepos.append(config.LOCAL_REPO.format(projectName))
+#   elif eachRepo.find("svn") > 0:  # might have svn mirror
+#     svnName = re.findall(".*/asf/(.*)(?:/)", eachRepo)[0]
+#     if GitOperations.isValidGitCloneURL(_APACHE_GITHUB.format(svnName)):
+#       urlInfo["repository"].append(_APACHE_GITHUB.format(svnName))
+#       localRepos.append(config.LOCAL_REPO.format(projectName))
+#   else:
+#     print("No git repo or svn mirror found for ", projectName)
 '''
 It loops all the projects in apache-project.json.
 '''
@@ -19,18 +35,23 @@ def main():
       bugDatabase = info["bug-database"] if "bug-database" in info else "" # get information about the bug database
       urlInfo["jira"] = bugDatabase if bugDatabase.find("jira") >= 0 else None
       repos = info["repository"] if "repository" in info else [] # get information about the repositories
-
       localRepos = []
       for eachRepo in repos:
-        if len(re.findall(".*\/(.*).git", eachRepo)) > 0:
-          urlInfo["repository"].append(eachRepo)
+        gitUrlByRegex = re.findall("(?:.*)(https?.*)", eachRepo)
+        if len(re.findall("(git:)(:?.*)", eachRepo)) > 0: # Valid git clone url.
+          urlInfo["repository"].append(gitUrlByRegex[0])
           localRepos.append(config.LOCAL_REPO.format(projectName))
-        elif eachRepo.find("svn") > 0:
-          svnName = re.findall(".*\/asf\/(.*)?\/?", eachRepo)[0]
-          svnName = svnName.replace("/", "")
-          if GitOperations.isValidURL(_APACHE_GITHUB.format(svnName)):
+        elif len(gitUrlByRegex) > 0: # git clone ulr with https
+          urlInfo["repository"].append(gitUrlByRegex[0])
+          localRepos.append(config.LOCAL_REPO.format(projectName))
+        elif eachRepo.find("svn") > 0: # might have svn mirror
+          svnName = re.findall(".*/asf/(.*)(?:/)", eachRepo)[0]
+          #TODO Handle "http://svn.apache.org/repos/asf/httpcomponents/httpclient/trunk" in a regex
+          if GitOperations.isValidGitCloneURL(_APACHE_GITHUB.format(svnName)):
             urlInfo["repository"].append(_APACHE_GITHUB.format(svnName))
             localRepos.append(config.LOCAL_REPO.format(projectName))
+        else:
+          print ("No git repo or svn mirror found for ", projectName)
 
       # either of jira or git repo is not available.
       if (urlInfo["jira"] == None or len(urlInfo["repository"]) == 0):
@@ -40,6 +61,7 @@ def main():
                            urlInfo["repository"],
                            config.CSV_URL,
                            localRepos)
+      Utility.prettyPrintJSON(Utility.getCurrentRateLimit())
       proj.toCSVFile()
     dataFile.close()
 

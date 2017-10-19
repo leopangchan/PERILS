@@ -53,8 +53,8 @@ class ProjectApache:
     self.columns = self.__initCSVHeaders()
     self.jiraApache = JiraApache(re.findall(".*/(.*)", jiraURL)[0])
     for index, gitUrl in enumerate(gitURLs):
-      self.gitsApache.append(GitApache(gitUrl, localRepos[index],
-                                       re.findall(".*/(.*).git", gitUrl)[0]))
+      gitProjectName = re.findall(".*/(.*).git", gitUrl)[0]
+      self.gitsApache.append(GitApache(gitUrl, localRepos[index], gitProjectName))
     self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
 
   # it initializes a list of strings of the headers
@@ -152,7 +152,6 @@ class ProjectApache:
   '''
   def __getColumnSum(self, colName, perilsDataForAllIssues):
     r = [item[colName] for item in perilsDataForAllIssues if isinstance(item[colName], int)]
-    print ("list of columnSum = ", r)
     return sum(r)
 
   '''
@@ -172,7 +171,8 @@ class ProjectApache:
   '''
   def __getRatioForOneColumnOfPERIL(self, colName, colNames, perilsDataForAllIssues):
     allColumnSum = self.__getPERILSum(colNames, perilsDataForAllIssues)
-    return 0 if allColumnSum == 0 else self.__getColumnSum(colName, perilsDataForAllIssues) / allColumnSum
+    return 0 if allColumnSum == 0 else self.__getColumnSum(colName,
+                                                           perilsDataForAllIssues) / allColumnSum
 
   '''
   It output all metrics to a csv file.

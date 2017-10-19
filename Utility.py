@@ -1,4 +1,8 @@
 import json
+import traceback
+import Git
+from urllib.request import Request, urlopen
+
 
 STATE_STR = "status"
 OPEN_STR = "Open"
@@ -26,4 +30,19 @@ def convertDictStringToDict(dictStr):
   return json.loads(dictStr.decode("utf-8"))
 
 def prettyPrintJSON(dict):
-    print (json.dumps(dict, indent=2))
+    try:
+        print (json.dumps(dict, indent=2))
+    except:
+        print ("Failed on dump ", dict)
+
+
+def getCurrentRateLimit():
+    rateLimitURL = "https://api.github.com/rate_limit"
+    try:
+        request = Request(rateLimitURL)
+        request.add_header("Authorization", "token %s" % Git.credentials.personal_access_token)
+        response = urlopen(request)
+        return response.read()
+    except:
+        print("Failed on reading ", rateLimitURL)
+        traceback.print_exc()

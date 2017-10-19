@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from urllib.request import Request, urlopen
 import sys
+import traceback
 import subprocess
 from Git import credentials
 import requests
@@ -38,54 +39,72 @@ def compareGitDates(date1, date2):
                            '%Y-%m-%dT%H:%M:%S') >= datetime.strptime(date2,
                                                                      '%Y-%m-%dT%H:%M:%S')
 '''
-Git API Request with PAT
+Git API Request with Personal Access Token.
 '''
 def requestByGitAPIWithAuth(url):
-  request = Request(url)
-  request.add_header("Authorization", "token %s" % credentials.personal_access_token)
-  response = urlopen(request)
-  return response.read()
+  try:
+      request = Request(url)
+      request.add_header("Authorization", "token %s" % credentials.personal_access_token)
+      response = urlopen(request)
+      return response.read()
+  except:
+      print ("Failed on reading ", url)
+      traceback.print_exc()
 
 '''
 Execute git command by using Tika's local repo.
 '''
 def executeGitShellCommand(localRepo, commandList):
-  pr = subprocess.Popen(commandList,
-                        cwd=localRepo,
-                        shell=True,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE)
-  out, err = pr.communicate()
-  decodedErr = err.decode("utf-8")
-  if (len(re.findall('(no such commit)', decodedErr)) > 0):
-    # It's true, if no branches contains a commit.
-    return ""
-  elif (len(re.findall('(HEAD is now at )([a-zA-Z0-9]+)', decodedErr)) > 0):
-    return decodedErr
-  elif (decodedErr != ""):
-    print("Error from _executeGitShellCommand")
-    sys.exit(decodedErr)
-  return out.decode("ISO-8859-1")
+  try:
+      pr = subprocess.Popen(commandList,
+                            cwd=localRepo,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+      out, err = pr.communicate()
+      decodedErr = err.decode("utf-8")
+      if (len(re.findall('(no such commit)', decodedErr)) > 0):
+        # It's true, if no branches contains a commit.
+        return ""
+      elif (len(re.findall('(HEAD is now at )([a-zA-Z0-9]+)', decodedErr)) > 0):
+        return decodedErr
+      elif (decodedErr != ""):
+        print("Error from _executeGitShellCommand")
+        sys.exit(decodedErr)
+      return out.decode("ISO-8859-1")
+  except:
+      print ("comandList = ", commandList)
+      print ("local repo = ", localRepo)
+      traceback.print_exc(file=sys.stdout)
 
 '''
 It clones a local branch on localRepos/gitProjectName by using gitCloneURL
 '''
 def cloneAndPull(localRepo, gitProjectName, gitCloneURL):
-  invalidCharForFile = ['/', '\\', ':', '*', '?', '\', '"', '<', '>', '|'"]
-  goodGitProjectName = None
-  for c in invalidCharForFile:
-      goodGitProjectName = gitProjectName.replace(c, "-")
-  repoDir = localRepo + goodGitProjectName
-  if not os.path.isdir(repoDir) and not os.path.exists(repoDir):
-    git.Git().clone(gitCloneURL.format(), repoDir)
-  # git.cmd.Git(repoDir).pull()
+  try:
+      invalidCharForFile = ['/', '\\', ':', '*', '?', '\', '"', '<', '>', '|'"]
+      goodGitProjectName = None
+      for c in invalidCharForFile:
+          goodGitProjectName = gitProjectName.replace(c, "-")
+      repoDir = localRepo + goodGitProjectName
+      if not os.path.isdir(repoDir) and not os.path.exists(repoDir):
+        git.Git().clone(gitCloneURL.format(), repoDir)
+      else:
+        git.cmd.Git(repoDir).pull()
+  except:
+      print ("git cloning URL = ", gitCloneURL)
+      print ("local repo = ", localRepo)
+      traceback.print_exc(file=sys.stdout)
 
 
-def isValidURL(url):
+def isValidGitCloneURL(url):
   try:
       header = requests.head(url)
       if header.status_code < 400:
         return True
+      else:
+        print (url, " has ", header)
+        return False
   except Exception:
       return False
 
