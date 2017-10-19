@@ -9,6 +9,7 @@ import subprocess
 from Git import credentials
 import requests
 
+
 '''
 The parent of getting git's logInfo.
       It gets logs of all commits that contain the string of the requirement.
@@ -35,9 +36,7 @@ A public function exposed to other scripts
 Compare two dates in the format of '%Y-%m-%dT%H:%M:%S'
 '''
 def compareGitDates(date1, date2):
-  return datetime.strptime(date1,
-                           '%Y-%m-%dT%H:%M:%S') >= datetime.strptime(date2,
-                                                                     '%Y-%m-%dT%H:%M:%S')
+  return datetime.strptime(date1, '%Y-%m-%dT%H:%M:%S') >= datetime.strptime(date2, '%Y-%m-%dT%H:%M:%S')
 '''
 Git API Request with Personal Access Token.
 '''
@@ -82,11 +81,8 @@ It clones a local branch on localRepos/gitProjectName by using gitCloneURL
 '''
 def cloneAndPull(localRepo, gitProjectName, gitCloneURL):
   try:
-      invalidCharForFile = ['/', '\\', ':', '*', '?', '\', '"', '<', '>', '|'"]
-      goodGitProjectName = None
-      for c in invalidCharForFile:
-          goodGitProjectName = gitProjectName.replace(c, "-")
-      repoDir = localRepo + goodGitProjectName
+
+      repoDir = localRepo
       if not os.path.isdir(repoDir) and not os.path.exists(repoDir):
         git.Git().clone(gitCloneURL.format(), repoDir)
       else:
@@ -115,7 +111,6 @@ def _getCommitsDatesForThisReq(logInfo):
   dates = re.findall('(?<=Date:   )([A-Za-z0-9: ]+)', logInfo)
   datesForAllCommits = []
   for date in dates:
-    datesForAllCommits.append(datetime.strptime(date[:-1],
-                                                "%a %b %d %H:%M:%S %Y").strftime('%Y-%m-%dT%H:%M:%S'))
+    datesForAllCommits.append(datetime.strptime(date[:-1], "%a %b %d %H:%M:%S %Y").strftime('%Y-%m-%dT%H:%M:%S'))
 
   return datesForAllCommits

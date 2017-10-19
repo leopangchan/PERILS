@@ -26,11 +26,13 @@ class IssueApache:
     jiraProjectName = None
 
     def __init__(self, reqName, jiraAPI, jiraProjectName):
+        print ("initializing issue = ", reqName)
+        print ("initializing jiraAPI in IssueApache = ", jiraAPI)
+        print ("initializing jiraProjectName = ", jiraProjectName)
         self.reqName = reqName
         self.jiraAPI = jiraAPI
         self.jiraProjectName = jiraProjectName
         self.TRANSITIONS = Utility.getAllPossibleTransitions()
-        print("initializing issue = ", reqName)
 
     def getStatusOfOtherReqBeforeThisInProgress(self):
         self.__getHistoryItems(self.__initStartInProgressTime)
@@ -146,9 +148,8 @@ class IssueApache:
         results.update(self.getStatusOfOtherReqBeforeThisInProgress().items())
         results["numDescChangedCounters"] = self.getNumDescriptionChanged()
         numCommitDuringEachStatusDict = Counter({key : 0 for key in Utility.STATUSES})
-        for localRepo in localRepos: # if multiple repos exist
-            numCommitDuringEachStatusDict.update(self.getNumCommitDuringEachStatus(localRepo)) # this line removes all keys
-            # with 0 counting
+        for localRepo in localRepos:  # if multiple repos exist
+            numCommitDuringEachStatusDict.update(self.getNumCommitDuringEachStatus(localRepo))  # this line removes all keys
         results["numCommitsEachStatus"] = numCommitDuringEachStatusDict
         results.update(self.getOtherReqStatusesWhileThisOpen().items())
         results.update(self.getStatuesOfOtherReqWhenThisInProgress().items())
@@ -180,9 +181,9 @@ class IssueApache:
         for history in self.histories:
             createdTime = re.findall('(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})', history.created)[0]
             for indx, item in enumerate(history.items):
-                if (item.field == Utility.STATE_STR and self.currentStatus != item.toString):
+                if item.field == Utility.STATE_STR and self.currentStatus != item.toString:
                     result = callback(item, createdTime)
-                if (item.field == Utility.STATE_STR):
+                if item.field == Utility.STATE_STR:
                     self.currentStatus = item.toString
         return result
 

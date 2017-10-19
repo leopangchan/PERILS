@@ -21,7 +21,12 @@ class ProjectApache:
   perils7 = None
   perils2 = None
 
+
   def __init__(self, jiraURL, gitURLs, csvURL, localRepos):
+    print("initializing jiraURL in ProjectApache = ", jiraURL)
+    print("initializing gitURLS in ProjectApache = ", gitURLs)
+    print("initializing csvURL in ProjectApache = ", csvURL)
+    print("initializing localRepos in ProjectApache = ", localRepos)
     self.generalProjectInfo = ["project",
                                "numOpenRequirements",
                                "numInProgressRequirements"]
@@ -54,8 +59,10 @@ class ProjectApache:
     self.jiraApache = JiraApache(re.findall(".*/(.*)", jiraURL)[0])
     for index, gitUrl in enumerate(gitURLs):
       gitProjectName = re.findall(".*/(.*).git", gitUrl)[0]
+      print("Parsed gitProjectName in ProjectApache = ", gitProjectName)
       self.gitsApache.append(GitApache(gitUrl, localRepos[index], gitProjectName))
-    self.csv = CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
+    self.csv = CSV.CSV(csvURL, self.__initCSVHeaders(), self.__initCSVRows())
+
 
   # it initializes a list of strings of the headers
   def __initCSVHeaders(self):
@@ -65,6 +72,7 @@ class ProjectApache:
     columnsNames += self.perils6 + self.perils12 + self.perils11 + self.perils3
     columnsNames += self.perils16 + self.perils7 + self.perils2
     return columnsNames
+
 
   '''
     for each issue in issues of jiraApache
@@ -146,6 +154,7 @@ class ProjectApache:
       print (key, "is not found in any perils.")
       sys.exit()
 
+
   '''
   It calculates the sum of all values in a column for colName.
   @param colName - the name of a column for which the sum is calculated
@@ -153,6 +162,7 @@ class ProjectApache:
   def __getColumnSum(self, colName, perilsDataForAllIssues):
     r = [item[colName] for item in perilsDataForAllIssues if isinstance(item[colName], int)]
     return sum(r)
+
 
   '''
   It loops a list of colName to the sum of values of columns for a peril. 
@@ -164,6 +174,7 @@ class ProjectApache:
       allColumnsSum += self.__getColumnSum(colName, perilsDataForAllIssues)
     return allColumnsSum
 
+
   '''
   Calculate the ratio of colName's sum / allColumnsSum
   @param colName - the column for which a ratio is calculated
@@ -171,8 +182,8 @@ class ProjectApache:
   '''
   def __getRatioForOneColumnOfPERIL(self, colName, colNames, perilsDataForAllIssues):
     allColumnSum = self.__getPERILSum(colNames, perilsDataForAllIssues)
-    return 0 if allColumnSum == 0 else self.__getColumnSum(colName,
-                                                           perilsDataForAllIssues) / allColumnSum
+    return 0 if allColumnSum == 0 else self.__getColumnSum(colName, perilsDataForAllIssues) / allColumnSum
+
 
   '''
   It output all metrics to a csv file.

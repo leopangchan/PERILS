@@ -14,10 +14,7 @@ def MergeTwoCSV(csv1, csv2):
     # Create headers for the final table
     with open(csv2, 'w', newline='') as file2:
         w = csv.writer(file2)
-        header = ["PERILS6",
-                  "PERILS12",
-                  "PERILS11",
-                  "PRMergedByNonGithub"]
+        header = ["PERILS6", "PERILS12", "PERILS11", "PRMergedByNonGithub"]
         header = addEmptyColumns(header, 4)
         header.append("PERILS3")
         header = addEmptyColumns(header, 4)

@@ -15,17 +15,18 @@ class GitApache:
   '''
   gitCloneURL - an url for http calls
   localRepos - a local copy of a project
-  gitProjectName - for formatting a url of git api
+  gitProjectName - for formatting a url of git api.
   '''
   def __init__(self, gitCloneURL, localRepo, gitProjectName):
-    GitOperations.cloneAndPull(localRepo, gitProjectName, gitCloneURL)
+    print ("initializing gitProjectName = ", gitProjectName)
+    print ("initializing git url = ", gitCloneURL)
+    print ("initializing local repository = ", localRepo)
+    GitOperations.cloneAndPull(localRepo, Utility.getGoodWindowFileName(gitProjectName), gitCloneURL)
     self.gitCloneURL = gitCloneURL
     self.localRepo = localRepo
     self.gitProjectName = gitProjectName
     self.PULL_REQUESTS_BY_PAGE = self._Git_API_URL.format(gitProjectName, "all")
     self.CLOSED_PULL_REQUEST_BY_PAGE = self._Git_API_URL.format(gitProjectName, "closed")
-    print ("initializing gitProjectName = ", gitProjectName)
-    print ("initializing git url = ", gitCloneURL)
 
   '''
   Multiple commits might be made by the same developer.

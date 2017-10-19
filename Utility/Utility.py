@@ -35,7 +35,6 @@ def prettyPrintJSON(dict):
     except:
         print ("Failed on dump ", dict)
 
-
 def getCurrentRateLimit():
     rateLimitURL = "https://api.github.com/rate_limit"
     try:
@@ -46,3 +45,10 @@ def getCurrentRateLimit():
     except:
         print("Failed on reading ", rateLimitURL)
         traceback.print_exc()
+
+def getGoodWindowFileName(projectName):
+    invalidCharForFile = ['/', '\\', ':', '*', '?', '\', '"', '<', '>', '|'"]
+    goodGitProjectName = None
+    for c in invalidCharForFile:
+        goodGitProjectName = projectName.replace(c, "-")
+    return goodGitProjectName

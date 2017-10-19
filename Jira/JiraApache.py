@@ -13,12 +13,12 @@ class JiraApache:
   jiraProjectQuery - to select a project when executing queries
   '''
   def __init__(self, jiraProjectName):
+    print("initializing jiraProjectName = ", jiraProjectName)
     self.jiraAPI = JIRA({
       'server': 'https://issues.apache.org/jira'
     })
     self.jiraProjectName = jiraProjectName
     self.__setAllIssuesApache()
-    print("initializing jiraProjectName = ", jiraProjectName)
 
   '''
   To resolve this question (No related ticket in JIRA):
