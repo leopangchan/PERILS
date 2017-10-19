@@ -1,7 +1,7 @@
 import json
 from Git import GitOperations
 import re
-import Utility
+from Utility import Utility
 import config
 from ProjectApache import ProjectApache
 
@@ -27,7 +27,7 @@ _APACHE_GITHUB = "https://github.com/apache/{}"
 It loops all the projects in apache-project.json.
 '''
 def main():
-  with open("apache-projects.json", encoding="utf8") as dataFile:
+  with open("./Dataset/apache-projects.json", encoding="utf8") as dataFile:
     projectData = json.load(dataFile)
     # loop through all the projects in apache-projects.json
     for projectName, info in projectData.items():

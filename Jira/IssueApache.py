@@ -2,7 +2,7 @@ from Git import GitOperations
 import re
 from Jira import JiraQuery
 import collections
-import Utility
+from Utility import Utility
 from collections import Counter
 
 class IssueApache:
@@ -21,7 +21,6 @@ class IssueApache:
     statusTracking = None # PERILS-3
     isJustOpen = False # PERILS-3
     dateRangeEachState = None # PERILS-3
-
     reqName = None
     jiraAPI = None
     jiraProjectName = None
@@ -156,6 +155,7 @@ class IssueApache:
         results["transitionCounters"] = self.getNumEachTransition()
 
         return results
+
     '''
     To resolve PERILS-12
     '''
@@ -168,8 +168,9 @@ class IssueApache:
     To resolved PERILS-2
     '''
     def __initNumEachTransition(self, item, _):
-        key = self.currentStatus + "|" + item.toString
-        self.transitionCounters[key] += 1
+        if item.toString in Utility.STATUSES:
+            key = self.currentStatus + "|" + item.toString
+            self.transitionCounters[key] += 1
 
     def __getHistoryItems(self, callback):
         self.__initHistories()

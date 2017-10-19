@@ -1,8 +1,7 @@
-.idea/*
 /Git/credentials.py
-__pycache__/*
-/Git/__pycache__/*
-/Jira/__pycache__/*
-/output/*
-/CCP_REPOS/*
-
+/CCP-REPOS/*
+.idea/
+Git/__pycache__/
+Jira/__pycache__/
+__pycache__/
+output/

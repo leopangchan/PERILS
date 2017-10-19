@@ -1,6 +1,6 @@
 from Git import GitOperations
 import re
-import Utility
+from Utility import Utility
 
 
 class GitApache:

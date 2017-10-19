@@ -4,7 +4,6 @@ JIRA_REQ_WHERE_CLAUSE = "project={} AND issueType=\'New Feature\'"
 JIRA_REQ_CONT_WHERE_CLAUSE = JIRA_REQ_WHERE_CLAUSE + " AND "
 MAX_RESULTS = 1000
 
-###################### PUBLIC APIs ######################
 def getAllIssues(jira, jiraProjectName):
   return jira.search_issues(JIRA_REQ_WHERE_CLAUSE.format(jiraProjectName))
 

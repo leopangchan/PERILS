@@ -2,7 +2,7 @@ from Git.GitApache import GitApache
 from Jira.JiraApache import JiraApache
 from CSV import CSV
 import re
-import Utility
+from Utility import Utility
 import sys
 
 class ProjectApache:
