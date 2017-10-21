@@ -10,10 +10,11 @@ _APACHE_GITHUB = "https://github.com/apache/{}"
 def __getValidGitRepo(eachRepo):
   print("Validating repo's url = ", eachRepo)
   gitUrlByRegex = re.findall("(?:.*)(https?.*)", eachRepo)
-  if len(re.findall("(git:)(:?.*)", eachRepo)) > 0:
+  truncatedGitUrl = re.findall("(git:)(:?.*)", eachRepo)
+  if len(truncatedGitUrl) > 0:
     # Valid git clone url, such as git://.*.
-    return eachRepo
-  elif "git" in gitUrlByRegex and len(gitUrlByRegex) > 0:
+    return truncatedGitUrl[0]
+  elif len(gitUrlByRegex) > 0 and "git" in gitUrlByRegex[0]:
     # git clone url with https, such as https://.*.git
     return gitUrlByRegex[0]
   elif eachRepo.find("svn") > 0:
