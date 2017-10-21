@@ -9,8 +9,8 @@ _APACHE_GITHUB = "https://github.com/apache/{}"
 
 def __getValidGitRepo(eachRepo):
   print("Validating repo's url = ", eachRepo)
-  gitUrlByRegex = re.findall("(?:.*)(https?.*)", eachRepo)
-  truncatedGitUrl = re.findall("(git:)(:?.*)", eachRepo)
+  gitUrlByRegex = re.findall("(?:.*)\/(.*).git", eachRepo)
+  truncatedGitUrl = re.findall("(?:git:)(.*)", eachRepo)
   if len(truncatedGitUrl) > 0:
     # Valid git clone url, such as git://.*.
     return truncatedGitUrl[0]
@@ -20,7 +20,7 @@ def __getValidGitRepo(eachRepo):
   elif eachRepo.find("svn") > 0:
     # svn mirror, such as http://svn.apache.org/.*/trunk/, and "http://svn.apache.org/.*/"
     svnNameInASF = re.findall(".*/asf/(.*)(?:/)", eachRepo)
-    svnNameInTrunk = re.findall("(:?.*)\/(.*)\/(:?trunk)", eachRepo)
+    svnNameInTrunk = re.findall("(:?.*)\/(.*)\/(?:trunk)", eachRepo)
     svnName = svnNameInASF[0] if svnNameInASF else svnNameInTrunk[0] if svnNameInTrunk else ""
     if svnName != "" and GitOperations.isValidGitCloneURL(_APACHE_GITHUB.format(svnName)):
       return _APACHE_GITHUB.format(svnName)
@@ -50,7 +50,7 @@ def main():
 
       # either of jira or git repo is not available.
       if urlInfo["jira"] is None:
-        print("Missing JIRA database. It uses ", info["bug-database"], "instead")
+        print("Missing JIRA database.")
         continue
       elif len(urlInfo["repository"]) == 0:
         print("Missing Git repositories.")
