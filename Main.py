@@ -6,24 +6,25 @@ import config
 from ProjectApache import ProjectApache
 
 _APACHE_GITHUB = "https://github.com/apache/{}"
+_APACHE_GITHUB_GIT_CLONE = "git@github.com:apache/{}.git"
 
 def __getValidGitRepo(eachRepo):
   print("Validating repo's url = ", eachRepo)
-  gitUrlByRegex = re.findall("(?:.*)\/(.*).git", eachRepo)
-  truncatedGitUrl = re.findall("(?:git:)(.*)", eachRepo)
+  gitUrlByRegex = re.findall("(:?.*)\/(.*).git", eachRepo)
+  truncatedGitUrl = re.findall("(:?git:)(.*)", eachRepo)
   if len(truncatedGitUrl) > 0:
     # Valid git clone url, such as git://.*.
-    return truncatedGitUrl[0]
+    return eachRepo
   elif len(gitUrlByRegex) > 0 and "git" in gitUrlByRegex[0]:
     # git clone url with https, such as https://.*.git
     return gitUrlByRegex[0]
   elif eachRepo.find("svn") > 0:
     # svn mirror, such as http://svn.apache.org/.*/trunk/, and "http://svn.apache.org/.*/"
     svnNameInASF = re.findall(".*/asf/(.*)(?:/)", eachRepo)
-    svnNameInTrunk = re.findall("(:?.*)\/(.*)\/(?:trunk)", eachRepo)
+    svnNameInTrunk = re.findall("(?:.*)\/(.*)\/(?:trunk)", eachRepo)
     svnName = svnNameInASF[0] if svnNameInASF else svnNameInTrunk[0] if svnNameInTrunk else ""
     if svnName != "" and GitOperations.isValidGitCloneURL(_APACHE_GITHUB.format(svnName)):
-      return _APACHE_GITHUB.format(svnName)
+      return _APACHE_GITHUB_GIT_CLONE.format(svnName)
     return False
   else:
     return False
@@ -32,7 +33,7 @@ def __getValidGitRepo(eachRepo):
 It loops all the projects in apache-project.json.
 '''
 def main():
-  with open("./Dataset/apache-projects.json", encoding="utf8") as dataFile:
+  with open("./Dataset/whirr-project.json", encoding="utf8") as dataFile:
     projectData = json.load(dataFile)
     # loop through all the projects in apache-projects.json
     for projectName, info in projectData.items():

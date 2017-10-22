@@ -27,7 +27,6 @@ class IssueApache:
 
     def __init__(self, reqName, jiraAPI, jiraProjectName):
         print ("initializing issue = ", reqName)
-        print ("initializing jiraAPI in IssueApache = ", jiraAPI)
         print ("initializing jiraProjectName = ", jiraProjectName)
         self.reqName = reqName
         self.jiraAPI = jiraAPI
@@ -128,9 +127,9 @@ class IssueApache:
         currentStatus = Utility.OPEN_STR
         for history in self.histories:
             for indx, item in enumerate(history.items):
-                if (item.field == "description"):
+                if item.field == "description":
                     self.descriptionChangedCounters[currentStatus] += 1
-                if (item.field == Utility.STATE_STR):
+                if item.field == Utility.STATE_STR and item.field in Utility.STATUSES:
                     currentStatus = item.toString
         return self.descriptionChangedCounters
 
@@ -183,7 +182,7 @@ class IssueApache:
             for indx, item in enumerate(history.items):
                 if item.field == Utility.STATE_STR and self.currentStatus != item.toString:
                     result = callback(item, createdTime)
-                if item.field == Utility.STATE_STR:
+                if item.field == Utility.STATE_STR and item.field in Utility.STATUSES:
                     self.currentStatus = item.toString
         return result
 
@@ -238,6 +237,7 @@ class IssueApache:
                             hasRecordedDateDict[commitNdx] = True
                         elif self.END_TIME_STR in oneDateRange and \
                                 GitOperations.compareGitDates(oneDateRange[self.END_TIME_STR], commitDate):
+                            print ("reqname = ", self.reqName)
                             numCommitEachStatus[key] += 1
                             hasRecordedDateDict[commitNdx] = True
                         elif self.START_TIME_STR not in oneDateRange and \
