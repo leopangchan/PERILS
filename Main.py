@@ -4,6 +4,7 @@ import re
 from Utility import Utility
 import config
 from ProjectApache import ProjectApache
+from collections import OrderedDict
 
 _APACHE_GITHUB = "https://github.com/apache/{}"
 _APACHE_GITHUB_GIT_CLONE = "git@github.com:apache/{}.git"
@@ -33,9 +34,9 @@ def __getValidGitRepo(eachRepo):
 It loops all the projects in apache-project.json.
 '''
 def main():
-  with open("./Dataset/whirr-project.json", encoding="utf8") as dataFile:
-    projectData = json.load(dataFile)
-    # loop through all the projects in apache-projects.json
+  with open("./Dataset/tika-project.json", encoding="utf8") as dataFile:
+    projectData = json.load(dataFile, object_pairs_hook=OrderedDict)
+    # loop through all the projects in apache-project.json
     for projectName, info in projectData.items():
       urlInfo = {"repository":[], "jira":""}
       bugDatabase = info["bug-database"] if "bug-database" in info else ""  # get information about the bug database

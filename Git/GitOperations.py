@@ -91,6 +91,7 @@ def cloneAndPull(localRepo, gitProjectName, gitCloneURL):
       print ("git cloning URL = ", gitCloneURL)
       print ("local repo = ", localRepo)
       traceback.print_exc(file=sys.stdout)
+      exit(-1)
 
 
 def isValidGitCloneURL(url):
