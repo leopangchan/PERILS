@@ -15,4 +15,5 @@ Please make sure local branches exist in case of errors.
 The scripts use HTTP calls with authorization header in requestByGitAPIWithAuth in GitOperations.py.
 3. JIRA API - https://developer.atlassian.com/jiradev/jira-apis/jira-rest-apis
 The scripts execute JQL. All the JQLs are in JiraQuery.py.
-
+4. git-when-merged - https://github.com/mhagger/git-when-merged
+It's for PERIL-27
