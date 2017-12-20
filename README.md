@@ -1,4 +1,4 @@
-# PERILS
+# PERILS - A Research Project at College of Engieering, Cal Poly, SLO
 
 ### Abstract
 Github and JIRA have become the most important sources for software engineering researches. However, there are potential perils of mining data from them. We defined a set of perils in order to help people measure the validity of the data.
