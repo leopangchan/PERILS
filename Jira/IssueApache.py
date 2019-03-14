@@ -59,20 +59,20 @@ class IssueApache:
             timeClause = " ON " + \
                 re.findall('(\d{4}-\d{2}-\d{2})', self.startProgressTime)[0]
             result["portionOpenWhenThisInProgress"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI,
-                                                                                     self.jiraProjectName,
-                                                                                     timeClause)
+                                                                                             self.jiraProjectName,
+                                                                                             timeClause)
             result["portionInProgressWhenThisInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
-                                                                                                self.jiraProjectName,
-                                                                                                timeClause)
+                                                                                                        self.jiraProjectName,
+                                                                                                        timeClause)
             result["portionReopenedWhenThisInProgress"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI,
-                                                                                             self.jiraProjectName,
-                                                                                             timeClause)
+                                                                                                     self.jiraProjectName,
+                                                                                                     timeClause)
             result["portionResolvedWhenThisInProgress"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
-                                                                                             self.jiraProjectName,
-                                                                                             timeClause)
+                                                                                                     self.jiraProjectName,
+                                                                                                     timeClause)
             result["portionClosedWhenThisInProgress"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
-                                                                                            self.jiraProjectName,
-                                                                                            timeClause)
+                                                                                                    self.jiraProjectName,
+                                                                                                    timeClause)
         else:  # The issue hasn't started being developed.
             result["portionOpenWhenThisInProgress"] = result["portionInProgressWhenThisInProgress"] = result[
                 "portionReopenedWhenThisInProgress"] = "NA"
@@ -100,20 +100,20 @@ class IssueApache:
             timeClause = " BEFORE " + \
                 re.findall('(\d{4}-\d{2}-\d{2})', self.openEndingTime)[0]
         result["portionOpenWhileThisOpen"] = JiraQuery.getNumIssueWhileOpenByClause(self.jiraAPI,
-                                                                                self.jiraProjectName,
-                                                                                timeClause)
-        result["portionInProgressWhileThisOpen"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
-                                                                                           self.jiraProjectName,
-                                                                                           timeClause)
-        result["portionReopenedWhileThisOpen"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI,
-                                                                                        self.jiraProjectName,
-                                                                                        timeClause)
-        result["portionResolvedWhileThisOpen"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
-                                                                                        self.jiraProjectName,
-                                                                                        timeClause)
-        result["portionClosedWhileThisOpen"] = JiraQuery.getNumIssueWhileClosedByClause(self.jiraAPI,
                                                                                     self.jiraProjectName,
                                                                                     timeClause)
+        result["portionInProgressWhileThisOpen"] = JiraQuery.getNumIssueWhenInProgressByClause(self.jiraAPI,
+                                                                                               self.jiraProjectName,
+                                                                                               timeClause)
+        result["portionReopenedWhileThisOpen"] = JiraQuery.getNumIssueWhileReopenedByClause(self.jiraAPI,
+                                                                                            self.jiraProjectName,
+                                                                                            timeClause)
+        result["portionResolvedWhileThisOpen"] = JiraQuery.getNumIssueWhileResolvedByClause(self.jiraAPI,
+                                                                                            self.jiraProjectName,
+                                                                                            timeClause)
+        result["portionClosedWhileThisOpen"] = JiraQuery.getNumIssueWhileClosedByClause(self.jiraAPI,
+                                                                                        self.jiraProjectName,
+                                                                                        timeClause)
         return result
 
     '''
