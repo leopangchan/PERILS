@@ -25,8 +25,8 @@ def getAllPossibleTransitions():
         for indx2, val2 in enumerate(STATUSES):
             if indx != indx2:
                 transitions[val + "|" + val2] = [val, val2]  # Could use None
-    transitions["{}|{}".format(ANOTHER_STR, ANOTHER_STR)] = [
-        ANOTHER_STR, ANOTHER_STR]
+    transitions["{}|{}".format(ANOTHER_STR, ANOTHER_STR)] = [ANOTHER_STR, 
+                                                             ANOTHER_STR]
     return transitions
 
 
